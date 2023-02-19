@@ -1,7 +1,7 @@
 # Define the compiler to use
 CC := g++
 # Define compiler flags used in all builds
-CFLAGS := -std=c++11 -Wall
+CFLAGS := -std=c++11 -Wall -Llibs/TerminalGraphics -lTerminalGraphics
 
 # Define compiler flags used in debug & release builds
 DEBUGFLAGS := -g -O0 -D DEBUG
@@ -96,7 +96,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(call ospath,$(DEPDIR)/$*.d)
 COMPILE = $(CC) $(DEPFLAGS) $(CFLAGS) $(call ospath,$(addprefix -I$(LIBDIR)/,$(INCLUDEDIRS))) -c
 
 # Declare phony targets (targets without a corresponding file)
-.PHONY: all run debug release clean
+.PHONY: all run debug release clean update
 
 # Run the program every time make is run
 all: run
@@ -117,17 +117,21 @@ release: $(EXC)
 clean:
 	$(CLEAN)
 
+# Git submodule update --remote
+update: 
+	git submodule update --remote
+
 # Create all neccessary directories
 $(SUBDIRECTORIES):
 	$(MKDIR)
 
-$(LIBDIR)/$(call oslibfiles,TerminalGraphics/TerminalGraphics):
+$(LIBDIR)/$(call oslibfiles,TerminalGraphics/TerminalGraphics): update
 	cd $(call ospath,$(LIBDIR)/TerminalGraphics) && $(MAKE)
 
 # The following is from https://make.mad-scientist.net/papers/advanced-auto-dependency-generation
 
 # Link executable
-$(EXC): $(SRCS:%.cpp=$(OBJDIR)/%.o) $(addprefix $(LIBDIR)/,$(LIBFILES))
+$(EXC): $(addprefix $(LIBDIR)/,$(LIBFILES)) $(SRCS:%.cpp=$(OBJDIR)/%.o)
 	$(CC) $(CFLAGS) $(call ospath,$^) -o $@
 
 # Compile all object files

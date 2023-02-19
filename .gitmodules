@@ -1,0 +1,3 @@
+[submodule "libs/TerminalGraphics"]
+	path = libs/TerminalGraphics
+	url = https://github.com/melonboy10/TerminalGraphics.git

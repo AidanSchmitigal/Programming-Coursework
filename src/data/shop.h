@@ -23,9 +23,9 @@ class Shop {
     Order* getOrders() const;        // View orders
     int getNumberOfOrders() const;   // Return number of orders
 
-    string getAddress() const;  // Return address
-    string getPhone() const;    // Return phone number
-    float getRevenue() const;   // Return revenue
+    string getAddress() const;      // Return address
+    string getPhoneNumber() const;  // Return phone number
+    float getRevenue() const;       // Return revenue
 
     Menu& searchByPrice(double price);  // Search menu by price
     Coffee& searchByName(string name);  // Search menu by name

@@ -126,7 +126,7 @@ string Shop::getAddress() const {
     return this->address;
 }
 
-string Shop::getPhone() const {
+string Shop::getPhoneNumber() const {
     return this->phoneNumber;
 }
 

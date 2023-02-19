@@ -17,23 +17,23 @@ using namespace std;
 /**
  * Coffee Keiosk
  * - Employee can:
- * 1. View shop revenue
- * 2. View orders
- * 3. Add an item to coffee menu
- * 4. Remove an item from coffee menu
- * 5. View coffee menu
- * 6. View address
- * 7. View phone number
- * 8. Log out
+ * 1. View shop revenue                 x v
+ * 2. View orders                       x
+ * 3. Add an item to coffee menu        x v
+ * 4. Remove an item from coffee menu   x v
+ * 5. View coffee menu                  x v
+ * 6. View address                      x v
+ * 7. View phone number                 x v
+ * 8. Log out                           x
  *
  * - Customer can:
- * 1. View coffee menu
- * 2. Search by price
- * 3. Search by coffee name
- * 4. Place an order
- * 5. View address
- * 6. View phone
- * 7. Log out
+ * 1. View coffee menu                  x v
+ * 2. Search by price                   x v
+ * 3. Search by coffee name             x v
+ * 4. Place an order                    x v
+ * 5. View address                      x v
+ * 6. View phone                        x v
+ * 7. Log out                           x
  * -
  */
 
@@ -41,163 +41,181 @@ int main() {
     Shop shop = Shop();
     shop.loadData();
 
-    cout << "Welcome to the Coffee Shop!" << endl;
-    cout << "1. Employee" << endl;
-    cout << "2. Customer" << endl;
-    cout << "3. Exit" << endl;
+    Terminal term(new RowLayout(new int[2]{1, 4}));
 
-    bool isEmployee = false;
+    Group* header = new Group(new HorizontalLayout(), "header");
+    header->addElement(new Icon("src/images/icon.txt", 7, 5));
+    header->addElement(new Text("Welcome to the Coffee Shop!"));
+    header->addElement(new Text("Address: " + shop.getAddress()));
+    header->addElement(new Text("Phone: " + shop.getPhoneNumber()));
+    header->addElement(new Button("Employee", 0.1));
+    header->addElement(new Button("Exit", 0.1));
 
-    int choice;
-    cin >> choice;
+    Group* menu = new Group(new SquareGridLayout(new int[4]{1, 1, 1, 1}), "menu");
 
-    switch (choice) {
-        case 1:
-            isEmployee = true;
-            break;
-        case 2:
-            break;
-        case 3:
-            cout << "Exiting..." << endl;
-            return 0;
-    }
+    Terminal::rootWindow->addElement(header);
+    Terminal::rootWindow->addElement(menu);
 
-    if (isEmployee) {
-        cout << "Welcome, employee!" << endl;
-        cout << "1. View shop revenue" << endl;
-        cout << "2. View orders" << endl;
-        cout << "3. Add an item to coffee menu" << endl;
-        cout << "4. Remove an item from coffee menu" << endl;
-        cout << "5. View coffee menu" << endl;
-        cout << "6. View address" << endl;
-        cout << "7. View phone number" << endl;
-        cout << "8. Log out" << endl;
+    string s;
+    cin >> s;
 
-        cin >> choice;
-        string name;
-        double smallCost;
-        double mediumCost;
-        double largeCost;
-        Coffee* coffeee;
+    // cout << "Welcome to the Coffee Shop!" << endl;
+    // cout << "1. Employee" << endl;
+    // cout << "2. Customer" << endl;
+    // cout << "3. Exit" << endl;
 
-        switch (choice) {
-            case 1:
-                cout << "Shop revenue: $" << shop.getRevenue() << endl;
-                break;
-            case 2:
-                cout << "Orders:" << endl;
-                for (int i = 0; i < shop.getNumberOfOrders(); i++) {
-                    cout << shop.getOrders()[i].getId() << " " << shop.getOrders()[i].getCoffeeName() << " " << shop.getOrders()[i].getCoffeeSize() << " " << shop.getOrders()[i].getQuantity() << endl;
-                }
-                break;
-            case 3:
-                cout << "Add an item to coffee menu" << endl;
+    // bool isEmployee = false;
 
-                cout << "Name: ";
-                cin >> name;
-                cout << "Small cost: ";
-                cin >> smallCost;
-                cout << "Medium cost: ";
-                cin >> mediumCost;
-                cout << "Large cost: ";
-                cin >> largeCost;
+    // int choice;
+    // cin >> choice;
 
-                coffeee = new Coffee(name, smallCost, mediumCost, largeCost, 0, 0, 0);
-                shop.addToMenu(coffeee);
-                break;
-            case 4:
-                cout << "Remove an item from coffee menu" << endl;
-                cin >> choice;
-                shop.removeFromMenu(choice);
+    // switch (choice) {
+    //     case 1:
+    //         isEmployee = true;
+    //         break;
+    //     case 2:
+    //         break;
+    //     case 3:
+    //         cout << "Exiting..." << endl;
+    //         return 0;
+    // }
 
-                break;
-            case 5:
-                cout << "Coffee menu:" << endl;
-                for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
-                    cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
-                }
-                break;
-            case 6:
-                cout << "Address: " << shop.getAddress() << endl;
-                break;
-            case 7:
-                cout << "Phone number: " << shop.getPhone() << endl;
-                break;
-            case 8:
-                cout << "Logging out..." << endl;
-                break;
-        }
-    } else {
-        cout << "Welcome, customer!" << endl;
-        cout << "1. View coffee menu" << endl;
-        cout << "2. Search by price" << endl;
-        cout << "3. Search by coffee name" << endl;
-        cout << "4. Place an order" << endl;
-        cout << "5. View address" << endl;
-        cout << "6. View phone" << endl;
-        cout << "7. Log out" << endl;
+    // if (isEmployee) {
+    //     cout << "Welcome, employee!" << endl;
+    //     cout << "1. View shop revenue" << endl;
+    //     cout << "2. View orders" << endl;
+    //     cout << "3. Add an item to coffee menu" << endl;
+    //     cout << "4. Remove an item from coffee menu" << endl;
+    //     cout << "5. View coffee menu" << endl;
+    //     cout << "6. View address" << endl;
+    //     cout << "7. View phone number" << endl;
+    //     cout << "8. Log out" << endl;
 
-        cin >> choice;
+    //     cin >> choice;
+    //     string name;
+    //     double smallCost;
+    //     double mediumCost;
+    //     double largeCost;
+    //     Coffee* coffeee;
 
-        double price;
-        string name;
-        int quantity;
-        char size;
-        Coffee coffee;
-        Menu menu;
-        Order* order;
+    //     switch (choice) {
+    //         case 1:
+    //             cout << "Shop revenue: $" << shop.getRevenue() << endl;
+    //             break;
+    //         case 2:
+    //             cout << "Orders:" << endl;
+    //             for (int i = 0; i < shop.getNumberOfOrders(); i++) {
+    //                 cout << shop.getOrders()[i].getId() << " " << shop.getOrders()[i].getCoffeeName() << " " << shop.getOrders()[i].getCoffeeSize() << " " << shop.getOrders()[i].getQuantity() << endl;
+    //             }
+    //             break;
+    //         case 3:
+    //             cout << "Add an item to coffee menu" << endl;
 
-        switch (choice) {
-            case 1:
-                cout << "Coffee menu:" << endl;
-                for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
-                    cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
-                }
-                break;
-            case 2:
-                cout << "Search by price" << endl;
-                cin >> price;
+    //             cout << "Name: ";
+    //             cin >> name;
+    //             cout << "Small cost: ";
+    //             cin >> smallCost;
+    //             cout << "Medium cost: ";
+    //             cin >> mediumCost;
+    //             cout << "Large cost: ";
+    //             cin >> largeCost;
 
-                menu = shop.searchByPrice(price);
-                for (int i = 0; i < menu.getNumberOfCoffees(); i++) {
-                    cout << menu.getCoffees()[i].getName() << " " << menu.getCoffees()[i].getSmallCost() << " " << menu.getCoffees()[i].getMediumCost() << " " << menu.getCoffees()[i].getLargeCost() << endl;
-                }
-                break;
-            case 3:
-                cout << "Search by coffee name" << endl;
-                cin >> name;
-                coffee = shop.searchByName(name);
-                cout << coffee.getName() << " " << coffee.getSmallCost() << " " << coffee.getMediumCost() << " " << coffee.getLargeCost() << endl;
-                break;
-            case 4:
-                cout << "Place an order" << endl;
-                // Print menu then ask for number then size then quantity
-                cout << "Coffee menu:" << endl;
-                for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
-                    cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
-                }
-                cout << "Number: ";
-                cin >> choice;
-                cout << "Size: ";
-                cin >> size;
-                cout << "Quantity: ";
-                cin >> quantity;
+    //             coffeee = new Coffee(name, smallCost, mediumCost, largeCost, 0, 0, 0);
+    //             shop.addToMenu(coffeee);
+    //             break;
+    //         case 4:
+    //             cout << "Remove an item from coffee menu" << endl;
+    //             cin >> choice;
+    //             shop.removeFromMenu(choice);
 
-                order = new Order(shop.getNumberOfOrders() + 1, shop.getMenu().getCoffees()[choice - 1].getName(), size, quantity, false);
-                shop.placeOrder(order);
-                break;
-            case 5:
-                cout << "Address: " << shop.getAddress() << endl;
-                break;
-            case 6:
-                cout << "Phone number: " << shop.getPhone() << endl;
-                break;
-            case 7:
-                cout << "Logging out..." << endl;
-                break;
-        }
-    }
+    //             break;
+    //         case 5:
+    //             cout << "Coffee menu:" << endl;
+    //             for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
+    //                 cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
+    //             }
+    //             break;
+    //         case 6:
+    //             cout << "Address: " << shop.getAddress() << endl;
+    //             break;
+    //         case 7:
+    //             cout << "Phone number: " << shop.getPhone() << endl;
+    //             break;
+    //         case 8:
+    //             cout << "Logging out..." << endl;
+    //             break;
+    //     }
+    // } else {
+    //     cout << "Welcome, customer!" << endl;
+    //     cout << "1. View coffee menu" << endl;
+    //     cout << "2. Search by price" << endl;
+    //     cout << "3. Search by coffee name" << endl;
+    //     cout << "4. Place an order" << endl;
+    //     cout << "5. View address" << endl;
+    //     cout << "6. View phone" << endl;
+    //     cout << "7. Log out" << endl;
 
-    shop.saveData();
+    //     cin >> choice;
+
+    //     double price;
+    //     string name;
+    //     int quantity;
+    //     char size;
+    //     Coffee coffee;
+    //     Menu menu;
+    //     Order* order;
+
+    //     switch (choice) {
+    //         case 1:
+    //             cout << "Coffee menu:" << endl;
+    //             for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
+    //                 cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
+    //             }
+    //             break;
+    //         case 2:
+    //             cout << "Search by price" << endl;
+    //             cin >> price;
+
+    //             menu = shop.searchByPrice(price);
+    //             for (int i = 0; i < menu.getNumberOfCoffees(); i++) {
+    //                 cout << menu.getCoffees()[i].getName() << " " << menu.getCoffees()[i].getSmallCost() << " " << menu.getCoffees()[i].getMediumCost() << " " << menu.getCoffees()[i].getLargeCost() << endl;
+    //             }
+    //             break;
+    //         case 3:
+    //             cout << "Search by coffee name" << endl;
+    //             cin >> name;
+    //             coffee = shop.searchByName(name);
+    //             cout << coffee.getName() << " " << coffee.getSmallCost() << " " << coffee.getMediumCost() << " " << coffee.getLargeCost() << endl;
+    //             break;
+    //         case 4:
+    //             cout << "Place an order" << endl;
+    //             // Print menu then ask for number then size then quantity
+    //             cout << "Coffee menu:" << endl;
+    //             for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
+    //                 cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
+    //             }
+    //             cout << "Number: ";
+    //             cin >> choice;
+    //             cout << "Size: ";
+    //             cin >> size;
+    //             cout << "Quantity: ";
+    //             cin >> quantity;
+
+    //             order = new Order(shop.getNumberOfOrders() + 1, shop.getMenu().getCoffees()[choice - 1].getName(), size, quantity, false);
+    //             shop.placeOrder(order);
+    //             break;
+    //         case 5:
+    //             cout << "Address: " << shop.getAddress() << endl;
+    //             break;
+    //         case 6:
+    //             cout << "Phone number: " << shop.getPhone() << endl;
+    //             break;
+    //         case 7:
+    //             cout << "Logging out..." << endl;
+    //             break;
+    //     }
+    // }
+
+    // shop.saveData();
     return 0;
 }
