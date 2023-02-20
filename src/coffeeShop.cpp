@@ -9,6 +9,7 @@
 #include <TerminalGraphics.h>
 
 #include <iostream>
+#include <sstream>
 
 #include "data/shop.h"
 
@@ -21,201 +22,202 @@ using namespace std;
  * 2. View orders                       x
  * 3. Add an item to coffee menu        x v
  * 4. Remove an item from coffee menu   x v
- * 5. View coffee menu                  x v
- * 6. View address                      x v
+ * 5. View coffee menu                  x v d
+ * 6. View address                      x v d
  * 7. View phone number                 x v
- * 8. Log out                           x
+ * 8. Log out                           x v
  *
  * - Customer can:
  * 1. View coffee menu                  x v
  * 2. Search by price                   x v
  * 3. Search by coffee name             x v
  * 4. Place an order                    x v
- * 5. View address                      x v
- * 6. View phone                        x v
- * 7. Log out                           x
+ * 5. View address                      x v d
+ * 6. View phone                        x v d
+ * 7. Log out                           x v
  * -
  */
 
+// Function declarations
+
+Group* createMenuCoffee(Group* menu, Coffee coffee, bool employeeMode, bool bestSeller);
+void enterEmployeeMode(Text* welcomeText, Group* menu);
+void enterCustomerMode(Text* welcomeText, Group* menu);
+void enterOrderScreen(Group* menu, Coffee coffee);
+
+Shop shop = Shop();
+
 int main() {
-    Shop shop = Shop();
     shop.loadData();
+    bool employeeMode = false;
 
     Terminal term(new RowLayout(new int[2]{1, 4}));
-
-    Group* header = new Group(new HorizontalLayout(), "header");
-    header->addElement(new Icon("src/images/icon.txt", 7, 5));
-    header->addElement(new Text("Welcome to the Coffee Shop!"));
-    header->addElement(new Text("Address: " + shop.getAddress()));
-    header->addElement(new Text("Phone: " + shop.getPhoneNumber()));
-    header->addElement(new Button("Employee", 0.1));
-    header->addElement(new Button("Exit", 0.1));
-
-    Group* menu = new Group(new SquareGridLayout(new int[4]{1, 1, 1, 1}), "menu");
-
+    Group* header = new Group(new HorizontalLayout());
+    Group* menuGroup = new Group(new RowLayout(new int[2]{1, 4}));
+    Group* menuSorting = new Group(new HorizontalLayout(), "Sorting");
+    Group* menu = new Group(new ScrollingColumnsLayout(5), "Menu");
+    menuGroup->addElement(menuSorting);
+    menuGroup->addElement(menu);
     Terminal::rootWindow->addElement(header);
-    Terminal::rootWindow->addElement(menu);
+    Terminal::rootWindow->addElement(menuGroup);
 
-    string s;
-    cin >> s;
+    Text* welcomeText = new Text("Welcome to the Coffee Shop!\nAddress: " + shop.getAddress() + "\nPhone: " + shop.getPhoneNumber() + (employeeMode ? "\nRevenue: $" + to_string(shop.getRevenue()) : ""));
+    Button* employeeCustomerButton = new Button("Employee", [&employeeMode, &employeeCustomerButton, &welcomeText, &menu]() {
+        employeeMode = !employeeMode;
+        if (employeeMode) {
+            employeeCustomerButton->setTitle("Customer");
+            enterEmployeeMode(welcomeText, menu);
+        } else {
+            employeeCustomerButton->setTitle("Employee");
+            enterCustomerMode(welcomeText, menu);
+        }
+    });
 
-    // cout << "Welcome to the Coffee Shop!" << endl;
-    // cout << "1. Employee" << endl;
-    // cout << "2. Customer" << endl;
-    // cout << "3. Exit" << endl;
+    header->addElement(new Icon("src/images/icon.txt", 7, 5), 10);
+    header->addElement(welcomeText, 1);
+    header->addElement(new Spacer(0.5f));
+    header->addElement(employeeCustomerButton, 1);
+    header->addElement(new Button("Exit", []() {
+        Terminal::exit();
+    }));
 
-    // bool isEmployee = false;
+    TextInput* searchName = new TextInput("Sort by Name", "Mocha", 0.3);
+    TextInput* searchPrice = new TextInput("Sort by Price", "3.50", 0.3);
+    searchName->setKeyAction([&menu, &searchName, &employeeMode](string text) {
+        searchName->setTitle(text);
+        menu->removeAllElements();
+        Menu* shopMenu = shop.searchByName(text);
+        for (int i = 0; i < shopMenu->getNumberOfCoffees(); i++) {
+            menu->addElement(createMenuCoffee(menu, shopMenu->getCoffees()[i], employeeMode, false));
+        }
+    });
+    searchPrice->setKeyAction([&menu, &searchPrice, &employeeMode](string text) {
+        searchPrice->setTitle(text + to_string(rand()));
+        menu->removeAllElements();
+        text = "0" + text;
+        cout << text << endl;
+        Menu* shopMenu = shop.searchByPrice(stof(text));
+        for (int i = 0; i < shopMenu->getNumberOfCoffees(); i++) {
+            menu->addElement(createMenuCoffee(menu, shopMenu->getCoffees()[i], employeeMode, false));
+        }
+    });
+    menuSorting->addElement(searchName, 2);
+    menuSorting->addElement(searchPrice);
 
-    // int choice;
-    // cin >> choice;
+    enterCustomerMode(welcomeText, menu);
 
-    // switch (choice) {
-    //     case 1:
-    //         isEmployee = true;
-    //         break;
-    //     case 2:
-    //         break;
-    //     case 3:
-    //         cout << "Exiting..." << endl;
-    //         return 0;
-    // }
-
-    // if (isEmployee) {
-    //     cout << "Welcome, employee!" << endl;
-    //     cout << "1. View shop revenue" << endl;
-    //     cout << "2. View orders" << endl;
-    //     cout << "3. Add an item to coffee menu" << endl;
-    //     cout << "4. Remove an item from coffee menu" << endl;
-    //     cout << "5. View coffee menu" << endl;
-    //     cout << "6. View address" << endl;
-    //     cout << "7. View phone number" << endl;
-    //     cout << "8. Log out" << endl;
-
-    //     cin >> choice;
-    //     string name;
-    //     double smallCost;
-    //     double mediumCost;
-    //     double largeCost;
-    //     Coffee* coffeee;
-
-    //     switch (choice) {
-    //         case 1:
-    //             cout << "Shop revenue: $" << shop.getRevenue() << endl;
-    //             break;
-    //         case 2:
-    //             cout << "Orders:" << endl;
-    //             for (int i = 0; i < shop.getNumberOfOrders(); i++) {
-    //                 cout << shop.getOrders()[i].getId() << " " << shop.getOrders()[i].getCoffeeName() << " " << shop.getOrders()[i].getCoffeeSize() << " " << shop.getOrders()[i].getQuantity() << endl;
-    //             }
-    //             break;
-    //         case 3:
-    //             cout << "Add an item to coffee menu" << endl;
-
-    //             cout << "Name: ";
-    //             cin >> name;
-    //             cout << "Small cost: ";
-    //             cin >> smallCost;
-    //             cout << "Medium cost: ";
-    //             cin >> mediumCost;
-    //             cout << "Large cost: ";
-    //             cin >> largeCost;
-
-    //             coffeee = new Coffee(name, smallCost, mediumCost, largeCost, 0, 0, 0);
-    //             shop.addToMenu(coffeee);
-    //             break;
-    //         case 4:
-    //             cout << "Remove an item from coffee menu" << endl;
-    //             cin >> choice;
-    //             shop.removeFromMenu(choice);
-
-    //             break;
-    //         case 5:
-    //             cout << "Coffee menu:" << endl;
-    //             for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
-    //                 cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
-    //             }
-    //             break;
-    //         case 6:
-    //             cout << "Address: " << shop.getAddress() << endl;
-    //             break;
-    //         case 7:
-    //             cout << "Phone number: " << shop.getPhone() << endl;
-    //             break;
-    //         case 8:
-    //             cout << "Logging out..." << endl;
-    //             break;
-    //     }
-    // } else {
-    //     cout << "Welcome, customer!" << endl;
-    //     cout << "1. View coffee menu" << endl;
-    //     cout << "2. Search by price" << endl;
-    //     cout << "3. Search by coffee name" << endl;
-    //     cout << "4. Place an order" << endl;
-    //     cout << "5. View address" << endl;
-    //     cout << "6. View phone" << endl;
-    //     cout << "7. Log out" << endl;
-
-    //     cin >> choice;
-
-    //     double price;
-    //     string name;
-    //     int quantity;
-    //     char size;
-    //     Coffee coffee;
-    //     Menu menu;
-    //     Order* order;
-
-    //     switch (choice) {
-    //         case 1:
-    //             cout << "Coffee menu:" << endl;
-    //             for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
-    //                 cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
-    //             }
-    //             break;
-    //         case 2:
-    //             cout << "Search by price" << endl;
-    //             cin >> price;
-
-    //             menu = shop.searchByPrice(price);
-    //             for (int i = 0; i < menu.getNumberOfCoffees(); i++) {
-    //                 cout << menu.getCoffees()[i].getName() << " " << menu.getCoffees()[i].getSmallCost() << " " << menu.getCoffees()[i].getMediumCost() << " " << menu.getCoffees()[i].getLargeCost() << endl;
-    //             }
-    //             break;
-    //         case 3:
-    //             cout << "Search by coffee name" << endl;
-    //             cin >> name;
-    //             coffee = shop.searchByName(name);
-    //             cout << coffee.getName() << " " << coffee.getSmallCost() << " " << coffee.getMediumCost() << " " << coffee.getLargeCost() << endl;
-    //             break;
-    //         case 4:
-    //             cout << "Place an order" << endl;
-    //             // Print menu then ask for number then size then quantity
-    //             cout << "Coffee menu:" << endl;
-    //             for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
-    //                 cout << shop.getMenu().getCoffees()[i].getName() << " " << shop.getMenu().getCoffees()[i].getSmallCost() << " " << shop.getMenu().getCoffees()[i].getMediumCost() << " " << shop.getMenu().getCoffees()[i].getLargeCost() << endl;
-    //             }
-    //             cout << "Number: ";
-    //             cin >> choice;
-    //             cout << "Size: ";
-    //             cin >> size;
-    //             cout << "Quantity: ";
-    //             cin >> quantity;
-
-    //             order = new Order(shop.getNumberOfOrders() + 1, shop.getMenu().getCoffees()[choice - 1].getName(), size, quantity, false);
-    //             shop.placeOrder(order);
-    //             break;
-    //         case 5:
-    //             cout << "Address: " << shop.getAddress() << endl;
-    //             break;
-    //         case 6:
-    //             cout << "Phone number: " << shop.getPhone() << endl;
-    //             break;
-    //         case 7:
-    //             cout << "Logging out..." << endl;
-    //             break;
-    //     }
-    // }
-
-    // shop.saveData();
+    Terminal::checkInputs();
+    Terminal::exit();
     return 0;
+}
+
+Group* createMenuCoffee(Group* menu, Coffee coffee, bool employeeMode, bool bestSeller) {
+    Group* group = new Group(new VerticalLayout(), coffee.getName());
+    if (bestSeller) group->setBackgroundColor(Color::LIGHT_YELLOW);
+
+    srand(coffee.getName().length());
+    group->addElement(new Icon("src/images/coffee." + to_string(rand() % 5 + 1) + ".txt", 8, 5), 1);
+    group->addElement(new Text("Large:  $" + to_string(coffee.getLargeCost()).substr(0, 4)));
+    group->addElement(new Text("Medium: $" + to_string(coffee.getMediumCost()).substr(0, 4)));
+    group->addElement(new Text("Small:  $" + to_string(coffee.getSmallCost()).substr(0, 4)), 1);
+    group->addElement(new Button("Order", 0.8, [menu, coffee]() {
+        enterOrderScreen(menu, coffee);
+    }));
+    if (employeeMode && !bestSeller) {
+        group->addElement(new Button("Remove", 0.8, []() {
+            // shop.removeFromMenu(i);
+        }));
+    }
+
+    stringstream ss;
+    ss << menu;
+    menu->setTitle(ss.str());
+    return group;
+}
+
+void enterEmployeeMode(Text* welcomeText, Group* menu) {
+    welcomeText->setText("Welcome to the Coffee Shop!\nAddress: " + shop.getAddress() + "\nPhone: " + shop.getPhoneNumber() + "\nRevenue: $" + to_string(shop.getRevenue()));
+    menu->removeAllElements();
+
+    Coffee* bestSellers = shop.getBestSellers();
+    for (int i = 0; i < 4; i++) {
+        menu->addElement(createMenuCoffee(menu, bestSellers[i], true, true));
+    }
+
+    Coffee* shopMenu = shop.getMenu().getCoffees();
+    for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
+        menu->addElement(createMenuCoffee(menu, shopMenu[i], true, false));
+    }
+}
+
+void enterCustomerMode(Text* welcomeText, Group* menu) {
+    welcomeText->setText("Welcome to the Coffee Shop!\nAddress: " + shop.getAddress() + "\nPhone: " + shop.getPhoneNumber());
+    menu->removeAllElements();
+
+    Coffee* bestSellers = shop.getBestSellers();
+    for (int i = 0; i < 4; i++) {
+        menu->addElement(createMenuCoffee(menu, bestSellers[i], false, true));
+    }
+
+    Coffee* shopMenu = shop.getMenu().getCoffees();
+    for (int i = 0; i < shop.getNumberOfCoffees(); i++) {
+        menu->addElement(createMenuCoffee(menu, shopMenu[i], false, false));
+    }
+}
+
+void enterOrderScreen(Group* menu, Coffee coffee) {
+    Terminal::rootWindow->removeElement(menu->parent, false);
+
+    Group* orderGroup = new Group(new VerticalLayout(), "Order");
+    orderGroup->addElement(new Text(coffee.getName()), 1);
+    orderGroup->addElement(new Icon("src/images/coffee/1.txt", 8, 5));
+
+    Group* sizeGroup = new Group(new HorizontalLayout());
+    sizeGroup->widthPercent = 0.5;
+    sizeGroup->heightPercent = -1;
+    sizeGroup->height = 5;
+
+    Button* smallButton = new Button("Small");
+    Button* mediumButton = new Button("Medium");
+    Button* largeButton = new Button("Large");
+
+    smallButton->setAction([smallButton, mediumButton, largeButton]() {
+        smallButton->setState(State::SUCCESS);
+        mediumButton->setState(State::DEFAULT);
+        largeButton->setState(State::DEFAULT);
+    });
+    mediumButton->setAction([smallButton, mediumButton, largeButton]() {
+        smallButton->setState(State::DEFAULT);
+        mediumButton->setState(State::SUCCESS);
+        largeButton->setState(State::DEFAULT);
+    });
+    largeButton->setAction([smallButton, mediumButton, largeButton]() {
+        smallButton->setState(State::DEFAULT);
+        mediumButton->setState(State::DEFAULT);
+        largeButton->setState(State::SUCCESS);
+    });
+
+    sizeGroup->addElement(smallButton);
+    sizeGroup->addElement(mediumButton);
+    sizeGroup->addElement(largeButton);
+    orderGroup->addElement(sizeGroup);
+
+    TextInput* quantityInput = new TextInput("Quantity", "1", 0.3);
+    orderGroup->addElement(quantityInput);
+    orderGroup->addElement(new Button("Add to Order", [orderGroup, menu, smallButton, mediumButton, quantityInput, coffee]() {
+        Terminal::rootWindow->removeElement(orderGroup);
+        Terminal::rootWindow->addElement(menu->parent);
+        shop.placeOrder(new Order(coffee.getName(),
+                                  smallButton->state == State::SUCCESS    ? 'S'
+                                  : mediumButton->state == State::SUCCESS ? 'M'
+                                                                          : 'L',
+                                  stoi(quantityInput->getText()), false));
+    }));
+
+    orderGroup->addElement(new Button("Back", [orderGroup, menu]() {
+        Terminal::rootWindow->removeElement(orderGroup);
+        Terminal::rootWindow->addElement(menu->parent);
+    }));
+    Terminal::rootWindow->addElement(orderGroup);
+    orderGroup->select();
 }

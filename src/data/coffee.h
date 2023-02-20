@@ -26,6 +26,11 @@ class Coffee {
     void addMediumSale();
     void addLargeSale();
 
+    int getSmallSales() const;
+    int getMediumSales() const;
+    int getLargeSales() const;
+    double getRevenue() const;
+
    private:
     string name;
     int smallSales, mediumSales, largeSales;

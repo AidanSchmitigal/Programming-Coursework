@@ -69,3 +69,16 @@ void Coffee::addMediumSale() {
 void Coffee::addLargeSale() {
     largeSales++;
 }
+
+int Coffee::getSmallSales() const {
+    return smallSales;
+}
+int Coffee::getMediumSales() const {
+    return mediumSales;
+}
+int Coffee::getLargeSales() const {
+    return largeSales;
+}
+double Coffee::getRevenue() const {
+    return (smallSales * smallCost) + (mediumSales * mediumCost) + (largeSales * largeCost);
+}

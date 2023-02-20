@@ -27,8 +27,9 @@ class Shop {
     string getPhoneNumber() const;  // Return phone number
     float getRevenue() const;       // Return revenue
 
-    Menu& searchByPrice(double price);  // Search menu by price
-    Coffee& searchByName(string name);  // Search menu by name
+    Coffee* getBestSellers() const;           // Return best sellers
+    Menu* searchByPrice(double price) const;  // Search menu by price
+    Menu* searchByName(string name) const;    // Search menu by name
 
     void placeOrder(Order* order);        // Place order
     void addToMenu(Coffee* coffee);       // Add item to menu

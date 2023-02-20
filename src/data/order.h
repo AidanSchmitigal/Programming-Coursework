@@ -12,6 +12,7 @@ class Order {
     // need to use 'const' when appropriate
     Order();
     Order(int id, string coffee_name, char coffee_size, int quantity, bool orderFilled);
+    Order(string coffee_name, char coffee_size, int quantity, bool orderFilled);
     Order(const Order& order);
     ~Order();
 
@@ -24,6 +25,8 @@ class Order {
     void setCoffeeSize(char coffee_size);
     void setQuantity(int quantity);
     void setOrderFilled(bool orderFilled);
+
+    static int nextOrder;
 
    private:
     int id;

@@ -31,7 +31,7 @@ void Shop::loadData() {
     }
 
     int numberOfCoffees;
-    menuFile >> numberOfCoffees;
+    menuFile >> numberOfCoffees >> ws;
     string currentLine;
     for (int i = 0; i < numberOfCoffees; i++) {
         getline(menuFile, currentLine);
@@ -64,12 +64,15 @@ void Shop::loadData() {
         orders[i] = Order(orderNum, name, size, quantity, orderFilled);
     }
 
-    infoFile >> phoneNumber;
-    infoFile >> address;
-    infoFile >> revenue;
+    getline(infoFile, phoneNumber);
+    getline(infoFile, address);
+    string revenueString;
+    getline(infoFile, revenueString);
 
     if (infoFile.fail()) {
         revenue = 0;
+    } else {
+        revenue = stof(revenueString);
     }
 
     menuFile.close();
@@ -134,12 +137,15 @@ float Shop::getRevenue() const {
     return this->revenue;
 }
 
-Coffee& Shop::searchByName(string name) {
+Menu* Shop::searchByName(string name) const {
     return this->menu.searchCoffeeByName(name);
 }
 
-Menu& Shop::searchByPrice(double price) {
+Menu* Shop::searchByPrice(double price) const {
     return this->menu.searchCoffeeByPrice(price);
+}
+Coffee* Shop::getBestSellers() const {
+    return this->menu.getBestSellers();
 }
 
 void Shop::placeOrder(Order* order) {

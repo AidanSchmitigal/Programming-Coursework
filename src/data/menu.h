@@ -21,11 +21,12 @@ class Menu {
     Menu& operator=(const Menu& menu);
 
     // Suggested functions:
-    Coffee& searchCoffeeByName(string name);
-    Menu& searchCoffeeByPrice(int upper_bound);
+    Menu* searchCoffeeByName(string name) const;
+    Menu* searchCoffeeByPrice(int upper_bound) const;
     void addToMenu(Coffee& coffee_to_add);
     void removeFromMenu(int index_of_coffee_on_menu);
 
+    Coffee* getBestSellers() const;
     Coffee* getCoffees() const;
     int getNumberOfCoffees() const;
 

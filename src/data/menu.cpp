@@ -27,23 +27,46 @@ Menu& Menu::operator=(const Menu& menu) {
     return *this;
 }
 
-Coffee& Menu::searchCoffeeByName(string name) {
+Menu* Menu::searchCoffeeByName(string name) const {
+    Menu* menu = new Menu();
     for (int i = 0; i < numberOfCoffees; i++) {
-        if (coffees[i].getName() == name) {
-            return coffees[i];
+        if (name == "" || coffees[i].getName().find(name) != string::npos) {
+            menu->addToMenu(coffees[i]);
         }
     }
-    return coffees[0];
+    return menu;
 }
-Menu& Menu::searchCoffeeByPrice(int upper_bound) {
+Menu* Menu::searchCoffeeByPrice(int upper_bound) const {
     Menu* menu = new Menu();
     for (int i = 0; i < numberOfCoffees; i++) {
         if (coffees[i].getSmallCost() <= upper_bound) {
             menu->addToMenu(coffees[i]);
         }
     }
-    return *menu;
+    return menu;
 }
+
+Coffee* Menu::getBestSellers() const {
+    Coffee* bestSellers = new Coffee[4];
+    bestSellers[0] = coffees[0];
+
+    for (int i = 1; i < numberOfCoffees; i++) {
+        if (coffees[i].getSmallSales() > bestSellers[0].getSmallSales() || coffees[i].getMediumSales() > bestSellers[0].getMediumSales() || coffees[i].getLargeSales() > bestSellers[0].getLargeSales()) {
+            bestSellers[0] = coffees[i];
+        }
+    }
+
+    for (int i = 1; i < 4; i++) {
+        bestSellers[i] = coffees[i];
+        for (int j = i + 1; j < numberOfCoffees; j++) {
+            if (coffees[j].getRevenue() > bestSellers[i].getRevenue()) {
+                bestSellers[i] = coffees[j];
+            }
+        }
+    }
+    return bestSellers;
+}
+
 void Menu::addToMenu(Coffee& coffee_to_add) {
     Coffee* temp = new Coffee[numberOfCoffees + 1];
     for (int i = 0; i < numberOfCoffees; i++) {
