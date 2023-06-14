@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Assignment 4 Maze"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"vector": "cpp"
+		},
+		"files.exclude": {
+			"**/.git": true,
+			"**/.gitmodules": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			"libs/**": true,
+			"obj/**": true,
+			".vscode/**": true,
+			"**/design.*": true,
+			"**/*.sh": true,
+			"**/graphics/**": true,
+			"**/*.h": true,
+		}
+	}
+}

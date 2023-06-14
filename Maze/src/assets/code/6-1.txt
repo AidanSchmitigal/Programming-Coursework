@@ -1,0 +1,44 @@
+--- Level and Question ---
+6
+Create a class that extends this base class and sets printed to true;
+--- Displayed Header and Footer Code ---
+class Base {
+  public:
+    static bool printed;
+    Base() { cout << "Base" << endl; }
+    ~Base() { cout << "~Base" << endl; }
+    virtual void print() = 0;
+}
+class Derived {
+---
+};
+
+int main() {
+  Derived d;
+  d.print();
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+---
+class Base {
+  public:
+    static bool printed;
+    Base() { cout << "Base" << endl; }
+    ~Base() { cout << "~Base" << endl; }
+    virtual void print() = 0;
+}
+class Derived {
+---
+};
+
+int main() {
+  Derived d;
+  d.print();
+  if (Base::printed) {
+    return 0;
+  }
+  std::cout << "Base::printed is not set to true";
+  return 1;
+}

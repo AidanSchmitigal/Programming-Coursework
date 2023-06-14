@@ -1,0 +1,16 @@
+
+     _____     _     _               
+    |  _  |___|_|___| |_ ___ ___ ___ 
+    |   __| . | |   |  _| -_|  _|_ -|
+    |__|  |___|_|_|_|_| |___|_| |___|
+
+
+    A pointer is a variable that stores the memory address of another variable
+    The "*" operator is used to declare a pointer variable
+    The "&" operator is used to get the memory address of a variable
+
+    Example:
+
+    \033[1;32mint\033[0m x = \033[1;32m5\033[0m;
+    \033[1;32mint\033[0m* ptr = &x;
+    \033[1;34mcout\033[0m << *ptr << \033[1;32mendl\033[0m; \033[2m// prints 5\033[0m

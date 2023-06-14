@@ -1,0 +1,14 @@
+
+     _____     _     _   _            _          _   _          _____                 _     
+    |  _  |___|_|___| |_|_|___ ___   | |_ ___   | |_| |_ ___   |     |___ ___ ___ ___| |___ 
+    |   __|  _| |   |  _| |   | . |  |  _| . |  |  _|   | -_|  |   --| . |   |_ -| . | | -_|
+    |__|  |_| |_|_|_|_| |_|_|_|_  |  |_| |___|  |_| |_|_|___|  |_____|___|_|_|___|___|_|___|
+                              |___|                                                         
+
+    Use the "cout" keyword to print text to the console
+    Enclose the text to be printed in quotes (" ") to indicate that it is a string
+    Use "<<" to concatenate multiple strings or values together
+
+    Example:
+
+    \033[1;34mcout\033[0m << \033[1;32m"Hello, world!"\033[0m << \033[1;32mendl\033[0m; \033[2m// Prints "Hello, world!" to the console\033[0m

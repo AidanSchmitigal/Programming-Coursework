@@ -1,0 +1,15 @@
+
+     _____         _     _   _                      _    ____      _          _____                 
+    |  |  |___ ___|_|___| |_| |___ ___    ___ ___ _| |  |    \ ___| |_ ___   |_   _|_ _ ___ ___ ___ 
+    |  |  | .'|  _| | .'| . | | -_|_ -|  | .'|   | . |  |  |  | .'|  _| .'|    | | | | | . | -_|_ -|
+     \___/|__,|_| |_|__,|___|_|___|___|  |__,|_|_|___|  |____/|__,|_| |__,|    |_| |_  |  _|___|___|
+                                                                                   |___|_|          
+
+    Use the "int" keyword to declare an integer variable
+    Use the "float" keyword to declare a floating-point variable
+    Variables can be assigned values using the "=" operator
+
+    Example:
+
+    \033[1;32mint\033[0m myInt = \033[1;32m5\033[0m; \033[2m// This is an integer variable\033[0m
+    \033[1;32mfloat\033[0m myFloat = \033[1;36m3.14\033[0m; \033[2m// This is a floating-point variable\033[0m

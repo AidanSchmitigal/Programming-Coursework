@@ -1,0 +1,35 @@
+--- Level and Question ---
+5
+Print a random greeting from an array of greetings
+--- Displayed Header and Footer Code ---
+#include <string>
+using namespace std;
+
+int main() {
+  string greetings[5] = {"Hello", "Hi", "Hey", "Howdy", "Greetings"};
+---
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+#include <sstream>
+#include <string>
+
+int main() {
+  std::string greetings[5] = {"Hello", "Hi", "Hey", "Howdy", "Greetings"};
+  std::stringstream cout;
+---
+  bool isInArray = false;
+  for (int i = 0; i < 5; i++) {
+    if (greetings[i] == cout.str()) {
+      isInArray = true;
+    }
+  }
+  if (!isInArray) {
+    std::cout << "Your code did not print a greeting from the array." << std::endl;
+    return 1;
+  }
+  return 0;
+}
+---

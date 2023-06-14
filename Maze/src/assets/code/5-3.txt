@@ -1,0 +1,41 @@
+--- Level and Question ---
+5
+Call the print function on this class.
+--- Displayed Header and Footer Code ---
+#include <iostream>
+using namespace std;
+
+class Foo {
+  public:
+    void print() {
+      cout << "Hello World!" << endl;
+    }
+};
+
+int main() {
+---
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+#include <sstream>
+
+class Foo {
+  public:
+    static bool printed = false;
+    void print() {
+      printed = true;
+    }
+};
+
+int main() {
+  std::stringstream cout;
+---
+  if (Foo::printed) {
+    return 0;
+  }
+  std::cout << "Did you call the print function?";
+  return 1;
+}
+---

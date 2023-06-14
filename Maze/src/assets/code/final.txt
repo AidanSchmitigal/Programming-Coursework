@@ -1,0 +1,16 @@
+--- Level and Question ---
+10
+Are you ready?  Create a simulation of ants where 10 ants will randomly move around a grid 10 times.
+--- Displayed Header and Footer Code ---
+// Impliment everything yourself including main.
+---
+
+---
+--- Actual Header and Footer Code ---
+/*
+---
+*/
+int main() {
+    return 0;
+}
+---

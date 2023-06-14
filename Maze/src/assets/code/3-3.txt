@@ -1,0 +1,39 @@
+--- Level and Question ---
+3
+Write a function to return if a number is positive.
+--- Displayed Header and Footer Code ---
+// Function Header
+bool isPositive(int num);
+
+int main() {
+  if (isPositive(5)) {
+    cout << "5 is positive" << endl;
+  } else {
+    cout << "5 is not positive" << endl;
+  }
+  if (isPositive(-5)) {
+    cout << "-5 is positive" << endl;
+  } else {
+    cout << "-5 is not positive" << endl;
+  }
+  return 0;
+}
+---
+
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+---
+int main() {
+  if (isPositive(5) != true) {
+    std::cout << "isPositive(5) should return true. ";
+    return 1;
+  }
+  if (isPositive(-5) != false) {
+    std::cout << "isPositive(-5) should return false";
+    return 1;
+  }
+
+  return 0;
+}
+---

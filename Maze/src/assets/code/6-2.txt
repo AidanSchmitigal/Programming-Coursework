@@ -1,0 +1,44 @@
+--- Level and Question ---
+6
+Create a new object of this class and set x to 10 and y to 15.
+--- Displayed Header and Footer Code ---
+class MyClass {
+  int x;
+  int y;
+  public MyClass(int x) {
+    this.x = x;
+  }
+  void setY(int y) {
+    this.y = y;
+  }
+}
+
+int main() {
+  MyClass obj;
+---
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+class MyClass {
+  int x;
+  int y;
+  public MyClass(int x) {
+    this.x = x;
+  }
+  void setY(int y) {
+    this.y = y;
+  }
+}
+
+int main() {
+  MyClass obj;
+---
+  if (obj.x == 10 && obj.y == 0) {
+    return 0;
+  }
+  std::cout << "x is " << obj.x << " and y is " << obj.y;
+  return 1;
+}
+---

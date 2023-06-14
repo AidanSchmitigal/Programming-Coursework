@@ -1,0 +1,25 @@
+--- Level and Question ---
+4
+Add all the elements in this array.
+--- Displayed Header and Footer Code ---
+int main() {
+  int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  int sum = 0;
+---
+  cout << sum << endl;
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+int main() {
+  int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  int sum = 0;
+---
+  if (sum == 55) {
+    return 0;
+  }
+  std::cout << "Incorrect! You returned " << sum;
+  return 1;
+}
+---
