@@ -1,0 +1,5 @@
+*.zip
+design.md
+Fractal
+obj/
+.DS_Store
