@@ -11,6 +11,7 @@ class Coffee {
     Coffee();
     Coffee(string name, float smallCost, float mediumCost, float largeCost, int smallSales, int mediumSales, int largeSales);
     Coffee& operator=(const Coffee& coffee);
+    bool operator==(const Coffee& coffee);
 
     string getName() const;
     float getSmallCost() const;
@@ -30,6 +31,7 @@ class Coffee {
     int getMediumSales() const;
     int getLargeSales() const;
     double getRevenue() const;
+    float getCost(char size) const;
 
    private:
     string name;

@@ -56,7 +56,6 @@
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
 
@@ -93,3 +92,11 @@ Temporary Items
 # Ignore all local history of files
 .history
 .ionide
+
+*.zip
+CoffeeShop
+*.pdf
+submit/
+TerminalGraphics/
+libs/
+obj/

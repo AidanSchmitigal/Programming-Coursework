@@ -1,7 +1,7 @@
 # Define the compiler to use
 CC := g++
 # Define compiler flags used in all builds
-CFLAGS := -std=c++11 -Wall -Llibs/TerminalGraphics -lTerminalGraphics
+CFLAGS := -std=c++11 -Wall -Llibs/TerminalGraphics -lTerminalGraphics -lcurl
 
 # Define compiler flags used in debug & release builds
 DEBUGFLAGS := -g -O0 -D DEBUG

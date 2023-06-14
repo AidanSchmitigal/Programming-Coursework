@@ -27,16 +27,20 @@ class Shop {
     string getPhoneNumber() const;  // Return phone number
     float getRevenue() const;       // Return revenue
 
-    Coffee* getBestSellers() const;           // Return best sellers
-    Menu* searchByPrice(double price) const;  // Search menu by price
-    Menu* searchByName(string name) const;    // Search menu by name
+    Coffee* getBestSellers() const;          // Return best sellers
+    Menu* searchByPrice(float price) const;  // Search menu by price
+    Menu* searchByName(string name) const;   // Search menu by name
 
-    void placeOrder(Order* order);        // Place order
-    void addToMenu(Coffee* coffee);       // Add item to menu
-    void removeFromMenu(int index);       // Remove item from menu
-    void removeFromMenu(Coffee* coffee);  // Remove item from menu
+    void placeOrder(Order* order);            // Place order
+    void fulfillOrder(int orderNum);          // Fill order
+    void addOrderCount(Coffee coffee, char);  // Add order count to coffee (for best sellers
+    void addToMenu(Coffee* coffee);           // Add item to menu
+    void removeFromMenu(int index);           // Remove item from menu
+    void removeFromMenu(Coffee coffee);       // Remove item from menu
+    void addRevenue(float revenue);           // Add revenue
 
    private:
+    void postRequest(string url, string data);
     Menu menu;
     string phoneNumber;
     string address;

@@ -15,14 +15,6 @@ Order::Order(int id, string coffee_name, char coffee_size, int quantity, bool or
     this->coffeeSize = coffee_size;
     this->quantity = quantity;
     this->orderFilled = orderFilled;
-    id >= nextOrder ? nextOrder = id + 1 : nextOrder++;
-}
-Order::Order(string coffee_name, char coffee_size, int quantity, bool orderFilled) {
-    this->id = nextOrder++;
-    this->coffeeName = coffee_name;
-    this->coffeeSize = coffee_size;
-    this->quantity = quantity;
-    this->orderFilled = orderFilled;
 }
 Order::Order(const Order& order) {
     this->id = order.id;
@@ -30,7 +22,6 @@ Order::Order(const Order& order) {
     this->coffeeSize = order.coffeeSize;
     this->quantity = order.quantity;
     this->orderFilled = order.orderFilled;
-    id >= nextOrder ? nextOrder = id + 1 : nextOrder++;
 }
 
 Order::~Order() {
@@ -51,6 +42,10 @@ char Order::getCoffeeSize() const {
 
 int Order::getQuantity() const {
     return quantity;
+}
+
+bool Order::getOrderFilled() const {
+    return orderFilled;
 }
 
 void Order::setCoffeeName(string coffee_name) {

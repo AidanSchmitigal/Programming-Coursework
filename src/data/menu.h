@@ -22,12 +22,13 @@ class Menu {
 
     // Suggested functions:
     Menu* searchCoffeeByName(string name) const;
-    Menu* searchCoffeeByPrice(int upper_bound) const;
+    Menu* searchCoffeeByPrice(float upper_bound) const;
     void addToMenu(Coffee& coffee_to_add);
     void removeFromMenu(int index_of_coffee_on_menu);
 
     Coffee* getBestSellers() const;
     Coffee* getCoffees() const;
+    void addOrderCount(int index_of_coffee_on_menu, char size);
     int getNumberOfCoffees() const;
 
     // feel free to add more member functions

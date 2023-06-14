@@ -36,10 +36,10 @@ Menu* Menu::searchCoffeeByName(string name) const {
     }
     return menu;
 }
-Menu* Menu::searchCoffeeByPrice(int upper_bound) const {
+Menu* Menu::searchCoffeeByPrice(float upper_bound) const {
     Menu* menu = new Menu();
     for (int i = 0; i < numberOfCoffees; i++) {
-        if (coffees[i].getSmallCost() <= upper_bound) {
+        if (upper_bound == 0 || coffees[i].getSmallCost() <= upper_bound || coffees[i].getMediumCost() <= upper_bound || coffees[i].getLargeCost() <= upper_bound) {
             menu->addToMenu(coffees[i]);
         }
     }
@@ -90,8 +90,26 @@ void Menu::removeFromMenu(int index_of_coffee_on_menu) {
     coffees = temp;
 }
 
+void Menu::addOrderCount(int index_of_coffee_on_menu, char size) {
+    switch (size) {
+        case 'S':
+            coffees[index_of_coffee_on_menu].addSmallSale();
+            break;
+        case 'M':
+            coffees[index_of_coffee_on_menu].addMediumSale();
+            break;
+        case 'L':
+            coffees[index_of_coffee_on_menu].addLargeSale();
+            break;
+    }
+}
+
 Coffee* Menu::getCoffees() const {
-    return coffees;
+    Coffee* returnCoffees = new Coffee[numberOfCoffees];
+    for (int i = 0; i < numberOfCoffees; i++) {
+        returnCoffees[i] = coffees[i];
+    }
+    return returnCoffees;
 }
 int Menu::getNumberOfCoffees() const {
     return numberOfCoffees;

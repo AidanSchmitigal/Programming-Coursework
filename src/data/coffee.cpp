@@ -34,6 +34,16 @@ Coffee& Coffee::operator=(const Coffee& coffee) {
     return *this;
 }
 
+bool Coffee::operator==(const Coffee& coffee) {
+    return this->name == coffee.name &&
+           this->smallCost == coffee.smallCost &&
+           this->mediumCost == coffee.mediumCost &&
+           this->largeCost == coffee.largeCost &&
+           this->smallSales == coffee.smallSales &&
+           this->mediumSales == coffee.mediumSales &&
+           this->largeSales == coffee.largeSales;
+}
+
 string Coffee::getName() const {
     return name;
 }
@@ -45,6 +55,19 @@ float Coffee::getMediumCost() const {
 }
 float Coffee::getLargeCost() const {
     return largeCost;
+}
+
+float Coffee::getCost(char size) const {
+    switch (size) {
+        case 'S':
+            return smallCost;
+        case 'M':
+            return mediumCost;
+        case 'L':
+            return largeCost;
+        default:
+            return 0.0;
+    }
 }
 
 void Coffee::setName(string name) {

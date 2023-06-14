@@ -1,8 +1,11 @@
 #include "shop.h"
 
+#include <curl/curl.h>
+
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -47,19 +50,19 @@ void Shop::loadData() {
         menu.addToMenu(coffee);
     }
 
-    ordersFile >> numberOfOrders;
+    ordersFile >> numberOfOrders >> ws;
     orders = new Order[numberOfOrders];
     for (int i = 0; i < numberOfOrders; i++) {
+        getline(ordersFile, currentLine);
         int orderNum;
         string name;
         char size;
         int quantity;
         bool orderFilled = false;
 
-        ordersFile >> orderNum >> name >> size >> quantity;
-        // if (ordersFile.peek() != '\n') {
-        //     ordersFile >> orderFilled;
-        // }
+        stringstream ss(currentLine);
+        ss >> orderNum >> name >> size >> quantity;
+        ss >> orderFilled;
 
         orders[i] = Order(orderNum, name, size, quantity, orderFilled);
     }
@@ -105,7 +108,10 @@ void Shop::saveData() {
         menuFile << menu.getCoffees()[i].getName() << " "
                  << menu.getCoffees()[i].getSmallCost() << " "
                  << menu.getCoffees()[i].getMediumCost() << " "
-                 << menu.getCoffees()[i].getLargeCost() << endl;
+                 << menu.getCoffees()[i].getLargeCost() << " "
+                 << menu.getCoffees()[i].getSmallSales() << " "
+                 << menu.getCoffees()[i].getMediumSales() << " "
+                 << menu.getCoffees()[i].getLargeSales() << endl;
     }
 
     ordersFile << numberOfOrders << endl;
@@ -113,7 +119,8 @@ void Shop::saveData() {
         ordersFile << orders[i].getId() << " "
                    << orders[i].getCoffeeName() << " "
                    << orders[i].getCoffeeSize() << " "
-                   << orders[i].getQuantity() << endl;
+                   << orders[i].getQuantity() << " "
+                   << orders[i].getOrderFilled() << endl;
     }
 
     infoFile << phoneNumber << endl;
@@ -141,7 +148,7 @@ Menu* Shop::searchByName(string name) const {
     return this->menu.searchCoffeeByName(name);
 }
 
-Menu* Shop::searchByPrice(double price) const {
+Menu* Shop::searchByPrice(float price) const {
     return this->menu.searchCoffeeByPrice(price);
 }
 Coffee* Shop::getBestSellers() const {
@@ -157,6 +164,28 @@ void Shop::placeOrder(Order* order) {
     delete[] orders;
     orders = newOrders;
     numberOfOrders++;
+
+    postRequest("/addcoffee",
+                "{\"name\": \"" + order->getCoffeeName() +
+                    "\", \"size\": \"" + order->getCoffeeSize() +
+                    "\", \"id\": " + to_string(order->getId()) +
+                    ", \"fulfilled\": " + to_string(order->getOrderFilled()) +
+                    ", \"quantity\":\"" + to_string(order->getQuantity()) + "\"}");
+}
+
+void Shop::fulfillOrder(int orderNum) {
+    for (int i = 0; i < numberOfOrders; i++) {
+        if (orders[i].getId() == orderNum) {
+            orders[i].setOrderFilled(true);
+
+            postRequest("/fulfillorder", "{\"id\": " + to_string(orders[i].getId()) + "}");
+            break;
+        }
+    }
+}
+
+void Shop::addRevenue(float revenue) {
+    this->revenue += revenue;
 }
 
 Menu Shop::getMenu() const {
@@ -183,11 +212,33 @@ void Shop::removeFromMenu(int index) {
     this->menu.removeFromMenu(index);
 }
 
-void Shop::removeFromMenu(Coffee* coffee) {
+void Shop::removeFromMenu(Coffee coffee) {
     for (int i = 0; i < menu.getNumberOfCoffees(); i++) {
-        if (menu.getCoffees()[i].getName() == coffee->getName()) {
+        if (menu.getCoffees()[i] == coffee) {
             menu.removeFromMenu(i);
             break;
         }
+    }
+}
+
+void Shop::addOrderCount(Coffee coffee, char size) {
+    for (int i = 0; i < menu.getNumberOfCoffees(); i++) {
+        if (menu.getCoffees()[i] == coffee) {
+            menu.addOrderCount(i, size);
+        }
+    }
+}
+
+void Shop::postRequest(string url, string data) {
+    CURL* curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, ("http://localhost:3000" + url).c_str());
+        // curl_easy_setopt(curl, CURLOPT_URL, ("https://aidan.schmitigal.com/coffees/" + url).c_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
     }
 }

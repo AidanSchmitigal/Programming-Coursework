@@ -1,7 +1,9 @@
-6
-Mocha 3.8 4.2 4.6 1 1 1
-Americano 3.45 3.65 3.95
-Cappuccino 3.75 4.15 4.45
-Latte 3.95 4.45 4.95
-Black_Coffee 4.05 4.3 4.55
-Flat_White 3.9 4.15 4.35
+8
+Mocha 3.8 4.2 4.6 0 2 1
+Americano 3.45 3.65 3.95 0 2 0
+Cappuccino 3.75 4.15 4.45 2 2 3
+Latte 3.95 4.45 4.95 1 0 1
+Black_Coffee 4.05 4.3 4.55 0 1 0
+Flat_White 3.9 4.15 4.35 0 0 1
+Japleinei 1 2 3 0 3 3
+Hello 2 2 2 0 0 0
