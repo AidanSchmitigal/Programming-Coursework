@@ -1,0 +1,26 @@
+
+    __                    
+   |  |   ___ ___ ___ ___ 
+   |  |__| . | . | . |_ -|
+   |_____|___|___|  _|___|
+                 |_|      
+
+   Loops are used to repeat a block of code multiple times
+   The "for" loop is used to execute a block of code a fixed number of times
+   The "while" loop is used to execute a block of code as long as a specified condition is true
+
+   Example:
+
+   \033[2m// for loop
+   \033[2m// for (initialization; condition; increment)
+   \033[1;33mfor\033[0m (\033[1;32mint\033[0m i = \033[1;32m1\033[0m; i <= \033[1;32m10\033[0m; i++) {
+      \033[1;34mcout\033[0m << i << \033[1;32mendl\033[0m; \033[2m// print the value of i
+   }
+
+   \033[2m// while loop
+   \033[2m// while (condition)
+   \033[1;32mint\033[0m i = \033[1;32m1\033[0m;
+   \033[1;33mwhile\033[0m (i <= \033[1;32m10\033[0m) {
+      \033[1;34mcout\033[0m << i << \033[1;32mendl\033[0m; \033[2m// print the value of i
+      i++; \033[2m// increment the value of i by 1
+   }

@@ -1,0 +1,31 @@
+--- Level and Question ---
+2
+Combine the array into a string.
+--- Displayed Header and Footer Code ---
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+  string arr[5] = {"Hello", "my", "name", "is", "John"};
+  string str = "";
+---
+  cout << str << endl;
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+#include <string>
+
+int main() {
+  std::string arr[5] = {"Hello", "my", "name", "is", "John"};
+  std::string str = "";
+---
+  if (str == "Hello my name is John" || str == "HellomynameisJohn") {
+    return 0;
+  }
+  std::cout << "Incorrect! Your answer was " << str;
+  return 1;
+}
+---

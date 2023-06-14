@@ -1,14 +1,17 @@
 #include "wall.h"
 
-MazeWall::MazeWall() {
-    occupied = true;
-}
-MazeWall::MazeWall(int x, int y) {
-    occupied = true;
-    this->x = x;
-    this->y = y;
-}
+MazeWall::MazeWall(int x, int y) : MazeRoom(x, y) {}
+
+MazeWall::~MazeWall() {}
 
 bool MazeWall::isOccupied() {
     return true;
+}
+
+bool MazeWall::isOccupiable() {
+    return false;
+}
+
+string MazeWall::getDisplayChar() {
+    return "";
 }

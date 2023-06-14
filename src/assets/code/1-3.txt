@@ -1,0 +1,26 @@
+--- Level and Question ---
+1
+Create a loop and print out the numbers 1 to 10. "12345678910"
+--- Displayed Header and Footer Code ---
+#include <iostream>
+using namespace std;
+
+int main() {
+---
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <string>
+#include <sstream>
+#include <iostream>
+int main() {
+  std::stringstream cout;
+---
+  if (cout.str() == "12345678910") {
+    return 0;
+  }
+  std::cout << "Your output does not contain \"12345678910\".";
+  return 1;
+}
+---

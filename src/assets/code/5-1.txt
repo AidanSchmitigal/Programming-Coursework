@@ -1,0 +1,29 @@
+--- Level and Question ---
+5
+Delete this array of pointers and set the array to NULL.
+--- Displayed Header and Footer Code ---
+int main() {
+  int** array[10];
+  for (int i = 0; i < 10; i++) {
+    array[i] = new int;
+  } 
+---
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+
+int main() {
+  int *array[10];
+  for (int i = 0; i < 10; i++) {
+    array[i] = new int;
+  }
+---
+  if (array[0] != NULL) {
+    std::cout << "array[0] is not NULL" << std::endl;
+    return 1;
+  }
+  return 0;
+}
+---

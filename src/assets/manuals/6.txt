@@ -1,0 +1,27 @@
+
+    _____ _                                  _    _____ _     _         _       
+   |     | |___ ___ ___ ___ ___    ___ ___ _| |  |     | |_  |_|___ ___| |_ ___ 
+   |   --| | .'|_ -|_ -| -_|_ -|  | .'|   | . |  |  |  | . | | | -_|  _|  _|_ -|
+   |_____|_|__,|___|___|___|___|  |__,|_|_|___|  |_____|___|_| |___|___|_| |___|
+                                                           |___|                
+
+   A class is a blueprint for creating objects that share common properties and behaviors
+   An object is an instance of a class
+   The "public" keyword is used to specify the properties and behaviors that can be accessed outside the class
+
+   Example:
+
+   \033[1;36mclass\033[0m \033[1;35mPerson\033[0m { \033[2m// class name is Person\033[0m
+      \033[1;36mpublic:\033[0m
+         \033[1;32mstring\033[0m name;
+         \033[1;32mint\033[0m age;
+
+         \033[1;36mvoid\033[0m greet() {
+            \033[1;34mcout\033[0m << \033[1;32m"Hello, my name is "\033[0m << name << \033[1;32m" and I am "\033[0m << age << \033[1;32m" years old."\033[0m << \033[1;34mendl\033[0m;
+         }
+   };
+
+   \033[1;35mPerson\033[0m john;
+   john.name = \033[1;32m"John"\033[0m;
+   john.age = \033[1;32m30\033[0m;
+   john.greet(); \033[2m// prints "Hello, my name is John and I am 30 years old.\033[0m"

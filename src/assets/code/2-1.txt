@@ -1,0 +1,31 @@
+--- Level and Question ---
+2
+Write a function to add two numbers.
+--- Displayed Header and Footer Code ---
+#include <iostream>
+using namespace std;
+
+// Function Header
+int add(int a, int b);
+
+int main() {
+  int a = 10, b = 5;
+  cout << add(a, b) << endl;
+  return 0;
+}
+---
+
+---
+--- Actual Header and Footer Code ---
+#include <sstream>
+#include <iostream>
+---
+int main() {
+  int a = 10, b = 5;
+  if (add(a, b) == 15) {
+    return 0;
+  }
+  std::cout << "add(10, 5) should return 15, but it returned " << add(a, b);
+  return 1;
+}
+---

@@ -1,0 +1,30 @@
+--- Level and Question ---
+3
+Write a function to create and array.
+--- Displayed Header and Footer Code ---
+// Function Header
+int* createArray(int size);
+
+int main() {
+  int size = 5;
+  int* array = createArray(size);
+
+  delete[] array;
+  return 0;
+}
+---
+
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+---
+int main() {
+  int size = 5;
+  int* array = createArray(size);
+  int sizes = sizeof(array) / sizeof(int);
+  delete[] array;
+  if (sizes == 5) return 0;
+  std::cout << "Your array is incorrect. Your array was " << sizes << " long.";
+  return 1;
+}
+---

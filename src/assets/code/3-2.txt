@@ -1,0 +1,42 @@
+--- Level and Question ---
+3
+Write a function to combine two lists of equal length into one, alternating elements.
+--- Displayed Header and Footer Code ---
+// Function Header
+void combineLists(int list1[], int list2[], int& result[], int size);
+
+int main() {
+  int list1[5] = {1, 2, 3, 4, 5};
+  int list2[5] = {6, 7, 8, 9, 10};
+  int result[10];
+  int i;
+
+  combineLists(list1, list2, result, 5);
+
+  for (i = 0; i < 10; ++i) {
+    printf("%d ", result[i]);
+  }
+  return 0;
+}
+---
+
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+---
+int main() {
+  int list1[5] = {1, 2, 3, 4, 5};
+  int list2[5] = {6, 7, 8, 9, 10};
+  int result[10];
+  int i;
+
+  combineLists(list1, list2, result, 5);
+
+  if (result == {1, 6, 2, 7, 3, 8, 4, 9, 5, 10}) {
+    return 0;
+  }
+  
+  std::cout << "Incorrect result. You returned " << result;
+  return 1;
+}
+---

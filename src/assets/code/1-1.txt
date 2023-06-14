@@ -1,0 +1,30 @@
+--- Level and Question ---
+1
+What is the syntax for printing "Hello, World!" in C++?
+--- Displayed Header and Footer Code ---
+#include <iostream>
+using namespace std;
+
+int main() {
+---
+  return 0;
+}
+---
+--- Actual Header and Footer Code ---
+#include <string>
+#include <sstream>
+#include <iostream>
+int main() {
+  std::stringstream cout;
+---
+  std::string text = cout.str();
+  if ((text.find("hello") != std::string::npos ||
+       text.find("Hello") != std::string::npos) && 
+     (text.find("World") != std::string::npos || 
+       text.find("world") != std::string::npos)) {
+    return 0;
+  }
+  std::cout << "Your output does not contain \"Hello, World!\"." << std::endl;
+  return 1;
+}
+---

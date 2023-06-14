@@ -1,0 +1,47 @@
+--- Level and Question ---
+6
+Create a destructor for the class.
+--- Displayed Header and Footer Code ---
+class MyClass {
+public:
+  int** myArray;
+  MyClass() {
+    myArray = new int[10];
+    for (int i = 0; i < 10; i++) {
+      myArray[i] = new int(i);
+    }
+  }
+  ~MyClass() {
+---
+  }
+};
+---
+--- Actual Header and Footer Code ---
+#include <iostream>
+
+class MyClass {
+public:
+  int** myArray;
+  MyClass() {
+    myArray = new int[10];
+    for (int i = 0; i < 10; i++) {
+      myArray[i] = new int(i);
+    }
+  }
+  delete() {
+---
+  }
+};
+
+int main() {
+  MyClass* myClass = new MyClass();
+  myClass.delete();
+
+  if (myClass.myArray == NULL) {
+    return 0;
+  }
+
+  std::cout << "myArray is not NULL";
+  return 0;
+}
+---

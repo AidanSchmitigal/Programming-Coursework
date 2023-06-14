@@ -1,0 +1,16 @@
+
+    _____             _   _             
+   |   __|_ _ ___ ___| |_|_|___ ___ ___ 
+   |   __| | |   |  _|  _| | . |   |_ -|
+   |__|  |___|_|_|___|_| |_|___|_|_|___|
+
+
+   A function is a reusable block of code that performs a specific task
+   Functions can take inputs, called parameters, and return outputs
+   The "return" keyword is used to specify the output of the function
+
+   Example:
+
+   \033[1;32mint\033[0m add(\033[1;32mint\033[0m x, \033[1;32mint\033[0m y\033[0m) {
+      \033[1;32mreturn\033[0m x + y; \033[2m// return the sum of x and y\033[0m
+   }
