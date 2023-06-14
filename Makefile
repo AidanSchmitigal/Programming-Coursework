@@ -1,0 +1,39 @@
+CC := g++
+CFLAGS := -g -std=c++11
+
+EXC := run_wizard_out
+
+SRCDIR := src
+OBJDIR := obj
+DEPDIR := $(OBJDIR)/deps
+
+SRCS := $(patsubst $(SRCDIR)/%, %, $(shell find $(SRCDIR) -name '*.cpp'))
+
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
+
+MKDIRS = mkdir -p $(OBJDIR)/$(dir $*) $(DEPDIR)/$(dir $*)
+COMPILE = $(CC) $(DEPFLAGS) $(CFLAGS) -c
+
+# Make the targets not require a check if the file exists
+.PHONY: all run clean
+
+# Run the program every time we make even if not needing a new compile
+all: run
+
+run: $(EXC)
+	./$(EXC)
+
+clean:
+	rm -rf $(OBJDIR) $(EXC)
+
+# Partly from https://make.mad-scientist.net/papers/advanced-auto-dependency-generation
+$(EXC): $(SRCS:%.cpp=$(OBJDIR)/%.o)
+	$(CC) $(CFLAGS) $^ -o $(EXC)
+
+$(OBJDIR)/%.o : $(SRCDIR)/%.cpp $(DEPDIR)/%.d
+	$(MKDIRS)
+	$(COMPILE) $(OUTPUT_OPTION) $<
+
+DEPFILES := $(SRCS:%.cpp=$(DEPDIR)/%.d)
+$(DEPFILES):
+include $(wildcard $(DEPFILES))

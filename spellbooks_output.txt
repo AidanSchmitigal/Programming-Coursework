@@ -1,0 +1,106 @@
+Title: Wacky_Witch_Handbook
+├ Author: Gretchen
+├ Number of pages: 1344
+├ Edition: 19
+├ Average success rate: 66.9433
+├ Spell 1
+│ ├ Title: Blasto_Strike
+│ ├ Effect: fire
+│ ╰ Success rate: 40.6
+├ Spell 2
+│ ├ Title: Space_Out
+│ ├ Effect: memory_loss
+│ ╰ Success rate: 60.23
+╰ Spell 3
+  ├ Title: Bubble_Beam
+  ├ Effect: bubble
+  ╰ Success rate: 100
+
+Title: Forbidden_Tome
+├ Author: Voldemort
+├ Number of pages: 1938
+├ Edition: 1
+├ Average success rate: 32.825
+├ Spell 1
+│ ├ Title: Avada_Kedavra
+│ ├ Effect: death
+│ ╰ Success rate: 20.45
+╰ Spell 2
+  ├ Title: Snake_Bite
+  ├ Effect: poison
+  ╰ Success rate: 45.2
+
+Title: Necronomicon
+├ Author: LoveCraft
+├ Number of pages: 1890
+├ Edition: 3
+├ Average success rate: 43.662
+├ Spell 1
+│ ├ Title: Wacky_Dreams
+│ ├ Effect: memory_loss
+│ ╰ Success rate: 89.8
+├ Spell 2
+│ ├ Title: Cthulhu_Venom
+│ ├ Effect: poison
+│ ╰ Success rate: 77.2
+├ Spell 3
+│ ├ Title: Deathrock
+│ ├ Effect: death
+│ ╰ Success rate: 20.4
+├ Spell 4
+│ ├ Title: Nightmare
+│ ├ Effect: death
+│ ╰ Success rate: 25.89
+╰ Spell 5
+  ├ Title: Deadly_Details
+  ├ Effect: death
+  ╰ Success rate: 5.02
+
+Title: Enchiridion
+├ Author: various_heros
+├ Number of pages: 2090
+├ Edition: 1
+├ Average success rate: 59.7154
+├ Spell 1
+│ ├ Title: Dog_Stretch
+│ ├ Effect: bubble
+│ ╰ Success rate: 70.883
+├ Spell 2
+│ ├ Title: Not_Ice_Blast
+│ ├ Effect: fire
+│ ╰ Success rate: 92.744
+├ Spell 3
+│ ├ Title: Blush
+│ ├ Effect: fire
+│ ╰ Success rate: 100
+├ Spell 4
+│ ├ Title: Adopted_By_Dogs
+│ ├ Effect: memory_loss
+│ ╰ Success rate: 0.05
+╰ Spell 5
+  ├ Title: Cloud_Dream
+  ├ Effect: memory_loss
+  ╰ Success rate: 34.9
+
+Title: Spells_for_Dummies
+├ Author: Tracey_Wood
+├ Number of pages: 305
+├ Edition: 1
+├ Average success rate: 79.73
+├ Spell 1
+│ ├ Title: Preliminary_Black_Out
+│ ├ Effect: memory_loss
+│ ╰ Success rate: 55.5
+├ Spell 2
+│ ├ Title: Exploratory_Maneuver
+│ ├ Effect: bubble
+│ ╰ Success rate: 88.5
+├ Spell 3
+│ ├ Title: Beginning_Blast
+│ ├ Effect: fire
+│ ╰ Success rate: 97.3
+╰ Spell 4
+  ├ Title: Introductory_Levitation
+  ├ Effect: bubble
+  ╰ Success rate: 77.62
+

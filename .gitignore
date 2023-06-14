@@ -1,0 +1,6 @@
+.DS_Store
+*.zip
+obj/
+run_wizard_out
+*.pdf
+.vscode
