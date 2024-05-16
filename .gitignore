@@ -1,0 +1,4 @@
+obj/*
+.vscode/*
+*.runme
+Makefile
