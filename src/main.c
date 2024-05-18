@@ -3,6 +3,7 @@
 #include <pwd.h>
 #include <stdio.h>   // { printf, scanf, read, STDIN_FILENO, open_memstream }
 #include <stdlib.h>  // { exit }
+#include <string.h>
 #include <sys/types.h>
 #include <termios.h>  // { struct termios, tcgetattr, tcsetattr, TCSAFLUSH, ECHO, ICANON, ISIG }
 #include <unistd.h>   // { STDIN_FILENO }
@@ -21,7 +22,7 @@
 void myConstructor(void) __attribute__((constructor));
 void myDestructor(void) __attribute__((destructor));
 
-struct termios orig_termios;
+struct termios termios_orig;
 
 void myConstructor(void) {
   printf("Constructor\n");
@@ -29,7 +30,7 @@ void myConstructor(void) {
   // Terminal raw mode
   struct termios termios_mode;
   tcgetattr(STDIN_FILENO, &termios_mode);
-  tcgetattr(STDIN_FILENO, &orig_termios);
+  tcgetattr(STDIN_FILENO, &termios_orig);
   /*
     ECHO - Stopped the character from being displayed when typed
     ICANON - Stopped the terminal from buffering the input aka reading one character at a time
@@ -61,7 +62,17 @@ void myDestructor(void) {
   printf("Destructor\n");
 
   // Terminal reset
-  tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+  // struct termios termios_mode;
+  // tcgetattr(STDIN_FILENO, &termios_mode);
+
+  // termios_mode.c_lflag |= (ECHO | ICANON | ISIG | IEXTEN);
+  // termios_mode.c_iflag |= (IXON | ICRNL | INLCR | BRKINT | INPCK | ISTRIP | IGNCR);
+  // termios_mode.c_oflag |= (OPOST);
+  // termios_mode.c_cflag &= ~(CS8);
+
+  // tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_mode);
+  tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_orig);
+
   // puts("\e[?1003m");
 }
 
@@ -84,6 +95,8 @@ int main(int argc, char *argv[]) {
   uid_t uid = geteuid();
   struct passwd *userData = uid == -1 ? NULL : getpwuid(uid);
   if (!userData) puts("nope");
+
+  int inputStartColumn = strlen(userData->pw_name) + 5;
   // printf("Hello %s", username);
 
   // Get and save the text
@@ -105,10 +118,12 @@ int main(int argc, char *argv[]) {
   // printf("buf = `%s', size = %zu\n", bp, size);
 
   int ansiColors[16] = {30, 31, 32, 33, 34, 35, 36, 37, 90, 91, 92, 93, 94, 95, 96, 97};
-  char tickCircle[8][4] = {"⠁", "⠂", "⠄", "⡀", "⢀", "⠠", "⠐", "⠈"};
+  char tickCircle[6][4] = {"⠁", "⠂", "⠄", "⠠", "⠐", "⠈"};
+
+  // fprintf(stream, "./hello world");
 
   while (true) {
-    tick = (tick + 1) % 8;
+    tick = (tick + 1) % 6;
     char c = '\0';
     read(STDIN_FILENO, &c, 1);
     // Cntr + C is 3
@@ -127,7 +142,9 @@ int main(int argc, char *argv[]) {
           break;
         case 127:
           // Backspace
-          fprintf(stream, "\b \b");
+          fseek(stream, -1, SEEK_CUR);
+          fprintf(stream, " ");
+          fseek(stream, -1, SEEK_CUR);
           break;
         case '\n':
           fprintf(stream, "\\n");
@@ -163,8 +180,9 @@ int main(int argc, char *argv[]) {
     fflush(stream);
     // printf("\r%s %zu", bp, size);
     // printf("\r\e[95m%s \e[90m\e[0m %s%i\b", userData->pw_name, bp, tick);
-    printf("\r%s \e[95m%s \e[90m\e[0m ", tickCircle[tick], userData->pw_name);
+    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], userData->pw_name);
 
+    // if (size > 0) {
     vector tokenVector;
     vector_init(&tokenVector, sizeof(struct Token));
     tokenize(&tokenVector, bp);
@@ -173,7 +191,17 @@ int main(int argc, char *argv[]) {
     //   struct token *token = (struct token *)tokenVector.items[i];
     //   printf("%s", token->value);
     // }
-    printf("%s", prettyPrintTokens(&tokenVector));
+    char *printedText;
+    char *tooltip;
+    prettyPrintTokens(&tokenVector, bp, &printedText, &tooltip);
+
+    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], userData->pw_name);
+    printf("\e[F\e[2K%*.s%s\e[E\e[2K%s \e[95m%s \e[90m\e[0m %s\e[;%uH\e[9999B", inputStartColumn, "", tooltip, tickCircle[tick], userData->pw_name, printedText, size + inputStartColumn + 1);
+    // printf("%s", prettyPrintTokens(&tokenVector));
+
+    free(printedText);
+    free(tooltip);
+    // }
 
     fflush(stdout);
   }

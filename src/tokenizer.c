@@ -1,104 +1,211 @@
-// POSIX Shell Tokenizer
-
 #include "tokenizer.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "utils/vector/vector.h"
 
-// https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html
-
-struct Token* newToken(int type, char* value) {
-  struct Token* token = malloc(sizeof(struct Token));
-  token->type = type;
-  strncat(token->value, value, 99);
-  return token;
+// https://stackoverflow.com/questions/57265887/trim-function-in-c
+char* trim(char* string) {
+  char* ptr = NULL;
+  while (*string == ' ') string++;    // chomp away space at the start
+  ptr = string + strlen(string) - 1;  // jump to the last char (-1 because '\0')
+  while (*ptr == ' ') {
+    *ptr = '\0';
+    ptr--;
+  };  // overwrite with end of string
+  return string;  // return pointer to the modified start
 }
 
-// tokenize input
-void tokenize(vector* tokenVector, char* input) {
-  size_t len = strlen(input);
+char* tokenTypeText(enum TokenType type) {
+  switch (type) {
+    case Command:
+      return "Command";
+    case Arg:
+      return "Arg";
+    case Input:
+      return "Input";
+    case Output:
+      return "Output";
+    case Async:
+      return "Async";
+    case Error:
+      return "Error";
+    default:
+      return "";
+  }
+}
 
-  // test token
-  // vector_add(tokenVector, new_token(Word, "test"));
+/**
+ * Tokenize the input string
+ * @param tokenVector - vector to store the tokens
+ * @param input - input string | Not modified
+ */
+void tokenize(vector* tokenVector, const char* input) {
+  size_t inputLen = strlen(input);
+  char* inputCopy = malloc(strlen(input) + 1);
+  strcpy(inputCopy, input);
+  inputCopy = trim(inputCopy);
 
-  // struct Token* firstToken = (struct Token*)vector_get(tokenVector, 0);
+  char* token = strtok(inputCopy, " ");
+  int nextToken = Command;
+  int tokenStart = 0;
 
-  char c = '\0';
-  size_t tokenStart = 0;
-  size_t tokenEnd = 0;
-  size_t numTokens = 0;
+  // command [arg1 arg2 ...] [< input_file] [> output_file] [&]
 
-  // Flags for tokenizing
-  int inQuote = 0;
-  int inDQuote = 0;
-  int inEscape = 0;
-  int inComment = 0;
+  // "comamnd" -> Command          0 - 6
+  // "arg1" -> Arg                 7 - 11
+  // "arg2" -> Arg                 12 - 16
+  // "<" -> Next token is Input
+  // "input_file" -> Input         17 - 27
+  // ">" -> Next token is Output
+  // "output_file" -> Output       28 - 39
+  // "&" -> Async                  40 - 41
 
-  // ✅ If the end of input is recognized, the current token (if any) shall be delimited.
+  while (token != NULL && token[0] != '\0') {
+    if (strcmp(token, "<") == 0) {
+      nextToken = Input;
+      // tokenStart = /* start of < */;
+    } else if (strcmp(token, ">") == 0) {
+      nextToken = Output;
+      // tokenStart = /* start of > */;
+    } else {
+      int len = strlen(token);
+      struct Token* newToken = malloc(sizeof(struct Token));
+      newToken->value = malloc(len + 1);
+      strcpy(newToken->value, token);
 
-  // If the previous character was used as part of an operator and the current character is not quoted and can be used with the previous characters to form an operator, it shall be used as part of that (operator) token.
+      vector_add(tokenVector, newToken);
 
-  // If the previous character was used as part of an operator and the current character cannot be used with the previous characters to form an operator, the operator containing the previous character shall be delimited.
+      newToken->inputStart = tokenStart;
+      newToken->inputEnd = tokenStart + len;
 
-  // If the current character is <backslash>, single-quote, or double-quote and it is not quoted, it shall affect quoting for subsequent characters up to the end of the quoted text. The rules for quoting are as described in Quoting . During token recognition no substitutions shall be actually performed, and the result token shall contain exactly the characters that appear in the input (except for <newline> joining), unmodified, including any embedded or enclosing quotes or substitution operators, between the <quotation-mark> and the end of the quoted text. The token shall not be delimited by the end of the quoted field.
+      tokenStart += len + 1;
 
-  // If the current character is an unquoted '$' or '`', the shell shall identify the start of any candidates for parameter expansion (Parameter Expansion), command substitution (Command Substitution), or arithmetic expansion (Arithmetic Expansion) from their introductory unquoted character sequences: '$' or "${", "$(" or '`', and "$((", respectively. The shell shall read sufficient input to determine the end of the unit to be expanded (as explained in the cited sections). While processing the characters, if instances of expansions or quoting are found nested within the substitution, the shell shall recursively process them in the manner specified for the construct that is found. The characters found from the beginning of the substitution to its end, allowing for any recursion necessary to recognize embedded constructs, shall be included unmodified in the result token, including any embedded or enclosing substitution operators or quotes. The token shall not be delimited by the end of the substitution.
-
-  // If the current character is not quoted and can be used as the first character of a new operator, the current token (if any) shall be delimited. The current character shall be used as the beginning of the next (operator) token.
-
-  // If the current character is an unquoted <blank>, any token containing the previous character is delimited and the current character shall be discarded.
-
-  // If the previous character was part of a word, the current character shall be appended to that word.
-
-  // ✅ If the current character is a '#', it and all subsequent characters up to, but excluding, the next <newline> shall be discarded as a comment. The <newline> that ends the line is not considered part of the comment.
-
-  // The current character is used as the start of a new word.
-
-#define isOperator(c) (c == ';' || c == '&' || c == '|' || c == '<' || c == '>' || c == '(' || c == ')' || c == '{' || c == '}' || c == '!' || c == '=')
-#define isWhitespace(c) (c == ' ' || c == '\t' || c == '\n' || c == '\r')
-#define isQuote(c) (c == '\'' || c == '"')
-#define isEscape(c) (c == '\\')
-#define isComment(c) (c == '#')
-
-  struct Token* token = newToken(Word, "");
-#define addToken(t)               \
-  vector_add(tokenVector, token); \
-  token = newToken(t, "");
-
-  for (size_t i = 0; i < len; i++) {
-    c = input[i];
-
-    if (c == '#') {
-      inComment = 1;
-      addToken(Comment);
-    }
-
-    if (inComment) {
-      if (c == '\n') {
-        inComment = 0;
-        addToken(Newline);
+      if (nextToken != NULL) {
+        newToken->type = nextToken;
+        if (nextToken == Input || nextToken == Output) {
+          newToken->inputEnd += 2;
+          tokenStart += 2;
+        }
+        nextToken = NULL;
+      } else if (strcmp(token, "&") == 0) {
+        newToken->type = Async;
+      } else {
+        newToken->type = Arg;
       }
-      token->value[0] = '\0';
-      continue;
     }
+    token = strtok(NULL, " ");
   }
-  if (token->value[0] != '\0') vector_add(tokenVector, token);
 
-  // Capture last token
-  // vector_add(&tokenVector, &currentToken);
+  if (nextToken != NULL) {
+    struct Token* newToken = malloc(sizeof(struct Token));
+    //                "<- Syntax Error: Was expecting <Some value>";
+    newToken->value = malloc(42);
+    strcat(newToken->value, "   <- Syntax Error: Was expecting ");
+    strcat(newToken->value, tokenTypeText(nextToken));
+    newToken->inputStart = tokenStart;
+    newToken->inputEnd = inputLen;
+    newToken->type = Error;
+
+    vector_add(tokenVector, newToken);
+  }
 }
 
-char* prettyPrintTokens(vector* tokenVector) {
-  int ansiColors[16] = {30, 31, 32, 33, 34, 35, 36, 37, 90, 91, 92, 93, 94, 95, 96, 97};
-  char* prettyPrint = malloc(vector_reduce(tokenVector, 0, strlen) + tokenVector->total * 5);
-  for (size_t i = 0; i < tokenVector->total; i++) {
-    struct Token* token = (struct Token*)tokenVector->items[i];
-    // printf("\e[%im%s\e[0m", ansiColors[token->type % 16], token->value);
-    sprintf(prettyPrint, "%s\e[%im%s", prettyPrint, ansiColors[/* token->type */ i % 16], token->value);
+int tokenLength(struct Token* token) {
+  return strlen(token->value);
+}
+
+/**
+ * Updates the tooltip and input strings to reflect the current state
+ * @param tokenVector - vector containing the tokens
+ * @param input - input string pointer
+ * @param tooltip - tooltip string pointer
+ */
+void prettyPrintTokens(vector* tokenVector, const char* input, char** printedText, char** tooltip) {
+  int ansiColors[16] = {36, 30, 31, 32, 33, 34, 35, 37, 90, 91, 92, 93, 94, 95, 96, 97};
+
+  int inputLength = strlen(input);
+  int totalLength = vector_reduce(tokenVector, 0, tokenLength);
+
+  // ANSI Codes: \e[<color>m, 5 chars                               check if last is error
+  *printedText = malloc(inputLength + (tokenVector->total * 5) + 1 + (((struct Token*)tokenVector->items[tokenVector->total - 1])->type == Error ? 42 : 0));  // +1 for the null terminator
+  // One ASNI code at start and then same length as displayed text
+  *tooltip = malloc(inputLength + 5 + tokenVector->total * 3 + 1);
+  (*printedText)[0] = '\0';
+  (*tooltip)[0] = '\0';
+
+  enum TokenType lastTokenType = -1;
+
+  for (size_t i = 0; i < inputLength; i++) {
+    struct Token* token = NULL;
+    for (size_t j = 0; j < tokenVector->total; j++) {
+      token = tokenVector->items[j];
+      if (token->inputStart == i) break;
+      token = NULL;
+    }
+    if (token != NULL) {
+      char colorCode[6];
+      sprintf(&colorCode, "\e[%im", ansiColors[token->type % 16]);
+      strcat(*printedText, &colorCode);
+
+      if (token->type == Error) {
+        int stringLength = strlen(*printedText);
+        (*printedText)[stringLength] = input[i];
+        (*printedText)[stringLength + 1] = '\0';
+
+        strcat(*printedText, "\e[91m");
+        strcat(*printedText, token->value);
+        break;
+      } else if (lastTokenType == token->type) {  // Same last token just add the dot
+        // strcat(*tooltip, ".");
+        // sprintf(((*tooltip) + strlen(tooltip)), "%*.s%s", token->inputStart - token->inputEnd, "", ".");
+        // char tmpString[2] = {token->type + 48, '\0'};
+        strcat(*tooltip, ".");
+        // strcat(*tooltip, ".");
+        for (int j = 0; j < (token->inputEnd - token->inputStart); j++) {
+          strcat(*tooltip, " ");
+        }
+      } else if (lastTokenType == -1) {  // Never hat a token before add the first one
+        strcat(*tooltip, "[");
+        for (int j = 0; j < (token->inputEnd - token->inputStart); j++) {
+          strcat(*tooltip, " ");
+        }
+      } else {  // Changin token sections add a spacer and the first one
+        strcat(*tooltip, "\b\b] [");
+        for (int j = 0; j < (token->inputEnd - token->inputStart); j++) {
+          strcat(*tooltip, " ");
+        }
+      }
+      lastTokenType = token->type;
+
+      // strcat(*printedText, "S");
+
+      // char tokenText[token->inputEnd - token->inputStart + 1];
+      // sprintf(&tokenText, "%.*s", token->inputEnd - token->inputStart, input);
+      // strcat(*printedText, &tokenText);
+
+      // i += token->inputEnd - token->inputStart;
+    }
+    int stringLength = strlen(*printedText);
+    (*printedText)[stringLength] = input[i];
+    (*printedText)[stringLength + 1] = '\0';
+    // strcatchar(*printedText, input[i]);
+
+    // (*printedText)[strlen(*printedText)] = input[i];
+    // (*printedText)[strlen(*printedText) + 1] = '\0';
+    // strcat(*printedText, )
   }
-  return prettyPrint;
+  strcat(*tooltip, "\b]");
+
+  // for (size_t i = 0; i < tokenVector->total; i++) {
+  //   struct Token* token = (struct Token*)tokenVector->items[i];
+  //   // printf(" \e[%im%s", ansiColors[/* token->type */ i % 16], token->value);
+
+  //   char colorCode[5 + strlen(token->value) + 1];
+  //   sprintf(&colorCode, "\e[%im%.*s", ansiColors[i % 16], token->inputEnd - token->inputEnd, token->value);
+  //   strcat(*printedText, &colorCode);
+  //   strcat(*printedText, token->value);
+  // }
 }

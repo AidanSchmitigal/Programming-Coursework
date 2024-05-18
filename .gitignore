@@ -2,3 +2,4 @@ obj/*
 .vscode/*
 *.runme
 Makefile
+lexical_parser/*

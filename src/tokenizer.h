@@ -1,52 +1,23 @@
-// POSIX Shell Tokenizer
-
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "utils/vector/vector.h"
 
+// token type
 enum TokenType {
-  Word,
-  AssignmentWord,
-  Name,
-  Comment,
-  Newline,
-  IONumber,
-  AndIf,
-  OrIf,
-  DoubleSemmicolon,
-  DoubleLessthan,
-  DoubleGreatthan,
-  Lessand,
-  Greatand,
-  Lessgreat,
-  Dlessdash,
-  Clbober,
-  If,
-  Then,
-  Else,
-  Elif,
-  Fi,
-  Do,
-  Done,
-  Case,
-  Esac,
-  While,
-  Until,
-  For,
-  Lbrace,
-  Rbrace,
-  Bang,
-  In
+  Command = 1,
+  Arg,
+  Input,
+  Output,
+  Async,
+  Error,
 };
 
 struct Token {
   enum TokenType type;
-  char value[100];
+  char* value;
+  int inputStart;
+  int inputEnd;
 };
 
 // tokenize input
-void tokenize(vector* tokenVector, char* input);
-char* prettyPrintTokens(vector* tokenVector);
+void tokenize(vector* tokenVector, const char* input);
+void prettyPrintTokens(vector* tokenVector, const char* input, char** printedText, char** tooltip);
+char* tokenTypeText(enum TokenType);
