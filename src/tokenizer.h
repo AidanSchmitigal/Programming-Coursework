@@ -1,3 +1,6 @@
+#ifndef TOKENIZER
+#define TOKENIZER
+
 #include "utils/vector/vector.h"
 
 // token type
@@ -8,6 +11,7 @@ enum TokenType {
   Output,
   Async,
   Error,
+  Comment
 };
 
 struct Token {
@@ -21,3 +25,5 @@ struct Token {
 void tokenize(vector* tokenVector, const char* input);
 void prettyPrintTokens(vector* tokenVector, const char* input, char** printedText, char** tooltip);
 char* tokenTypeText(enum TokenType);
+
+#endif

@@ -52,6 +52,17 @@ void tokenize(vector* tokenVector, const char* input) {
   int nextToken = Command;
   int tokenStart = 0;
 
+  if (inputCopy[0] == '#') {
+    struct Token* newToken = malloc(sizeof(struct Token));
+    newToken->value = inputCopy;
+    newToken->inputStart = 0;
+    newToken->inputEnd = inputLen;
+    newToken->type = Comment;
+
+    vector_add(tokenVector, newToken);
+    return;
+  }
+
   // command [arg1 arg2 ...] [< input_file] [> output_file] [&]
 
   // "comamnd" -> Command          0 - 6
@@ -124,7 +135,7 @@ int tokenLength(struct Token* token) {
  * @param tooltip - tooltip string pointer
  */
 void prettyPrintTokens(vector* tokenVector, const char* input, char** printedText, char** tooltip) {
-  int ansiColors[16] = {36, 30, 31, 32, 33, 34, 35, 37, 90, 91, 92, 93, 94, 95, 96, 97};
+  int ansiColors[8] = {0, /* Command */ 34, /* Arg */ 32, /* Input */ 33, /* Output */ 93, /* Async */ 95, /* Error */ 91, /* Comment */ 90};
 
   int inputLength = strlen(input);
   int totalLength = vector_reduce(tokenVector, 0, tokenLength);
@@ -155,7 +166,6 @@ void prettyPrintTokens(vector* tokenVector, const char* input, char** printedTex
         (*printedText)[stringLength] = input[i];
         (*printedText)[stringLength + 1] = '\0';
 
-        strcat(*printedText, "\e[91m");
         strcat(*printedText, token->value);
         break;
       } else if (lastTokenType == token->type) {  // Same last token just add the dot

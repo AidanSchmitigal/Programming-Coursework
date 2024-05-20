@@ -8,6 +8,7 @@
 #include <termios.h>  // { struct termios, tcgetattr, tcsetattr, TCSAFLUSH, ECHO, ICANON, ISIG }
 #include <unistd.h>   // { STDIN_FILENO }
 
+#include "runner.h"
 #include "tokenizer.h"
 
 // #include <dirent.h>
@@ -46,15 +47,17 @@ void myConstructor(void) {
     OPOST - Stopped the terminal from converting newline to carriage return newline
     CS8 - Set the character size to 8 bits
   */
-  termios_mode.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);                           // ECHONL
-  termios_mode.c_iflag &= ~(IXON | ICRNL | INLCR | BRKINT | INPCK | ISTRIP | IGNCR);  // IGNBRK, PARMRK, INLCR, IGNCR
-  termios_mode.c_oflag &= ~(OPOST);                                                   //
-  termios_mode.c_cflag |= (CS8);                                                      // ~CSIZE, PARENB
+  termios_mode.c_lflag &= ~(ECHO | ICANON | ISIG | IEXTEN);                                 // ECHONL
+  termios_mode.c_iflag &= ~(IXON | /* ICRNL | */ INLCR | BRKINT | INPCK | ISTRIP | IGNCR);  // IGNBRK, PARMRK, INLCR, IGNCR
+  termios_mode.c_oflag &= ~(OPOST);                                                         //
+  termios_mode.c_cflag |= (CS8);                                                            // ~CSIZE, PARENB
 
   // Set the minimum number of characters to read to 0 and the time to wait for the next character to 1/10th of a second
   termios_mode.c_cc[VMIN] = 0;
   termios_mode.c_cc[VTIME] = 1;
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_mode);
+
+  // Enables all mouse events to be written.
   // puts("\e[?1003h");
 }
 
@@ -122,12 +125,11 @@ int main(int argc, char *argv[]) {
 
   // fprintf(stream, "./hello world");
 
-  while (true) {
+  int keepGoing = true;
+  while (keepGoing) {
     tick = (tick + 1) % 6;
     char c = '\0';
     read(STDIN_FILENO, &c, 1);
-    // Cntr + C is 3
-    if (c == 3) break;
 
     if (iscntrl(c)) {
       // printf("%d\r", c);
@@ -136,9 +138,17 @@ int main(int argc, char *argv[]) {
         case '\0':
           // Tick function
           break;
+        case 3:
+          // Cntr + C
+          printf("\n\n");
+          // Enter key pressed
+          fclose(stream);
+          stream = open_memstream(&bp, &size);
+
+          break;
         case 4:
           // Cntr + D
-          exit(0);
+          keepGoing = false;
           break;
         case 127:
           // Backspace
@@ -147,11 +157,20 @@ int main(int argc, char *argv[]) {
           fseek(stream, -1, SEEK_CUR);
           break;
         case '\n':
-          fprintf(stream, "\\n");
+        case '\r': {
+          // Enter key pressed
+
+          printf("\n\r");
+          int status = runInput(bp);
+          // if (status != 0) {
+          printf("\n\rError: %i\n\n\n", status);
+          // }
+          // Clear the buffer
+          fclose(stream);
+          stream = open_memstream(&bp, &size);
+
           break;
-        case '\r':
-          fprintf(stream, "\\r");
-          break;
+        }
         case '\t':
           fprintf(stream, "\\t");
           break;
