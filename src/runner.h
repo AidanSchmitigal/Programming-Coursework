@@ -1,2 +1,4 @@
-int runInput(const char* input);
-char* findFile(char* filename);
+#include "parser.h"
+
+void runInput(const char* input);
+int runBuiltInCommand(struct Command* command);

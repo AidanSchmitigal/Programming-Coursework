@@ -1,5 +1,6 @@
 //
 #include <ctype.h>  // { iscntrl }
+#include <limits.h>
 #include <pwd.h>
 #include <stdio.h>   // { printf, scanf, read, STDIN_FILENO, open_memstream }
 #include <stdlib.h>  // { exit }
@@ -9,6 +10,8 @@
 #include <unistd.h>   // { STDIN_FILENO }
 
 #include "runner.h"
+#include "shell.h"
+#include "signals.h"
 #include "tokenizer.h"
 
 // #include <dirent.h>
@@ -24,12 +27,24 @@ void myConstructor(void) __attribute__((constructor));
 void myDestructor(void) __attribute__((destructor));
 
 struct termios termios_orig;
+struct termios termios_mode;
+
+struct SeaShellGlobalData seaShellGlobal = {0};
 
 void myConstructor(void) {
-  printf("Constructor\n");
+  seaShellGlobal.status = 0;
+  seaShellGlobal.cwdPath = malloc(PATH_MAX);
+  getcwd(seaShellGlobal.cwdPath, PATH_MAX);
+  seaShellGlobal.cwd = malloc(NAME_MAX);
+  strcpy(seaShellGlobal.cwd, seaShellGlobal.cwdPath + strlen(seaShellGlobal.cwdPath) - strlen(strrchr(seaShellGlobal.cwdPath, '/')) + 1);
+
+  uid_t uid = geteuid();
+  struct passwd *userData = uid == -1 ? NULL : getpwuid(uid);
+  if (!userData) puts("nope");
+
+  seaShellGlobal.username = userData->pw_name;
 
   // Terminal raw mode
-  struct termios termios_mode;
   tcgetattr(STDIN_FILENO, &termios_mode);
   tcgetattr(STDIN_FILENO, &termios_orig);
   /*
@@ -59,11 +74,17 @@ void myConstructor(void) {
 
   // Enables all mouse events to be written.
   // puts("\e[?1003h");
+
+  // Signals
+
+  // Both of these signal handlers get cleared when running exec, so I add an ignore handler before execvp.
+  // Setup a ^C signal handler for when the child is running, becuase I disable signal overrides
+  handleSignal(SIGINT, handle_SIGINT);
+  // Also setup a signal for ^Z so that I can handle that while the program is running.
+  handleSignal(SIGTSTP, handle_SIGTSTP);
 }
 
 void myDestructor(void) {
-  printf("Destructor\n");
-
   // Terminal reset
   // struct termios termios_mode;
   // tcgetattr(STDIN_FILENO, &termios_mode);
@@ -95,11 +116,8 @@ int main(int argc, char *argv[]) {
   // Ask the user to input some text
   // Get user name
   // char username[10];
-  uid_t uid = geteuid();
-  struct passwd *userData = uid == -1 ? NULL : getpwuid(uid);
-  if (!userData) puts("nope");
 
-  int inputStartColumn = strlen(userData->pw_name) + 5;
+  int inputStartColumn = strlen(seaShellGlobal.username) + 5;
   // printf("Hello %s", username);
 
   // Get and save the text
@@ -140,7 +158,13 @@ int main(int argc, char *argv[]) {
           break;
         case 3:
           // Cntr + C
-          printf("\n\n");
+
+          // \eF - Move cursor up one line
+          // \r - Move cursor to the beginning of the line
+          // \e[2K - Clear the line
+          // \n - New line
+          // \n - New line
+          printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\n", seaShellGlobal.username, bp, size + inputStartColumn + 1);
           // Enter key pressed
           fclose(stream);
           stream = open_memstream(&bp, &size);
@@ -159,11 +183,22 @@ int main(int argc, char *argv[]) {
         case '\n':
         case '\r': {
           // Enter key pressed
+          // printf("\e[F\r  \e[95m%s \e[90m\e[0m %s \n\n", seaShellGlobal.username, bp, size + inputStartColumn + 1);
 
-          printf("\n\r");
-          int status = runInput(bp);
+          // \eF - Move cursor up one line
+          // \r - Move cursor to the beginning of the line
+          // \e[2K - Clear the line
+          // \n - New line
+          // \n - New line
+          // \e[2K - Clear the line
+          // \r - Move cursor to the beginning of the line
+          printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\e[2K\r", seaShellGlobal.username, bp, size + inputStartColumn + 1);
+          fflush(stdout);
+          tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_orig);
+          runInput(bp);
+          tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_mode);
+          printf("\n");
           // if (status != 0) {
-          printf("\n\rError: %i\n\n\n", status);
           // }
           // Clear the buffer
           fclose(stream);
@@ -198,8 +233,8 @@ int main(int argc, char *argv[]) {
 
     fflush(stream);
     // printf("\r%s %zu", bp, size);
-    // printf("\r\e[95m%s \e[90m\e[0m %s%i\b", userData->pw_name, bp, tick);
-    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], userData->pw_name);
+    // printf("\r\e[95m%s \e[90m\e[0m %s%i\b", seaShellGlobal.username, bp, tick);
+    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], seaShellGlobal.username);
 
     // if (size > 0) {
     vector tokenVector;
@@ -214,8 +249,12 @@ int main(int argc, char *argv[]) {
     char *tooltip;
     prettyPrintTokens(&tokenVector, bp, &printedText, &tooltip);
 
-    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], userData->pw_name);
-    printf("\e[F\e[2K%*.s%s\e[E\e[2K%s \e[95m%s \e[90m\e[0m %s\e[;%uH\e[9999B", inputStartColumn, "", tooltip, tickCircle[tick], userData->pw_name, printedText, size + inputStartColumn + 1);
+    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], seaShellGlobal.username);
+    // \e[F     - Move cursor up one line
+    // \e[2K    - Clear the line
+    // \e[E     - Move cursor down one line
+    // \e[;%uH  - Move cursor to the column
+    printf("\e[F\e[2K%*.s%s\e[E\e[2K%s \e[95m%s \e[90m\e[0m %s\e[%uG", inputStartColumn, "", tooltip, tickCircle[tick], seaShellGlobal.username, printedText, size + inputStartColumn + 1);
     // printf("%s", prettyPrintTokens(&tokenVector));
 
     free(printedText);

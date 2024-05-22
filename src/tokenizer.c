@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "utils/vector/vector.h"
+#include "utils/vector.h"
 
 // https://stackoverflow.com/questions/57265887/trim-function-in-c
 char* trim(char* string) {
@@ -35,6 +36,24 @@ char* tokenTypeText(enum TokenType type) {
     default:
       return "";
   }
+}
+
+char* expandVariable(char* variableName) {
+  if (strcmp(variableName, "$") == 0) {
+    pid_t pid = getpid();
+    char* str = malloc(8);
+    sprintf(str, "%u", pid);
+    return str;
+  };
+
+  char* env = getenv(variableName);
+  if (env != NULL) {
+    char* str = malloc(strlen(env) + 1);
+    strcpy(str, env);
+    return str;
+  }
+
+  return NULL;
 }
 
 /**
@@ -85,7 +104,17 @@ void tokenize(vector* tokenVector, const char* input) {
       int len = strlen(token);
       struct Token* newToken = malloc(sizeof(struct Token));
       newToken->value = malloc(len + 1);
-      strcpy(newToken->value, token);
+
+      if (token[0] == '$') {
+        // Check for variable expansion
+        char* variable = expandVariable(token + 1);
+        if (variable == NULL)
+          strcpy(newToken->value, " ");
+        else
+          strcpy(newToken->value, variable);
+      } else {
+        strcpy(newToken->value, token);
+      }
 
       vector_add(tokenVector, newToken);
 
@@ -208,6 +237,8 @@ void prettyPrintTokens(vector* tokenVector, const char* input, char** printedTex
     // strcat(*printedText, )
   }
   strcat(*tooltip, "\b]");
+
+  if (input[0] == '\0') *tooltip[0] = '\0';
 
   // for (size_t i = 0; i < tokenVector->total; i++) {
   //   struct Token* token = (struct Token*)tokenVector->items[i];

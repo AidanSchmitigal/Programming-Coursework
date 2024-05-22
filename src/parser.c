@@ -7,7 +7,7 @@
 
 #include "runner.h"
 #include "tokenizer.h"
-#include "utils/vector/vector.h"
+#include "utils/vector.h"
 
 struct Command* parse(vector* tokensVector) {
   if (((struct Token*)tokensVector->items[tokensVector->total - 1])->type == Error) return NULL;
@@ -15,18 +15,21 @@ struct Command* parse(vector* tokensVector) {
   struct Command* command = malloc(sizeof(struct Command));
   command->inputFile = NULL;
   command->outputFile = NULL;
+  command->args = malloc(sizeof(vector));
+  vector_init(command->args, sizeof(char*));
 
-  command->numArgs = 1;
-  command->args = malloc(sizeof(char*));
-  command->args[0] = NULL;
+  // command->numArgs = 1;
+  // command->args = malloc(sizeof(char*));
+  // command->args[0] = NULL;
 
   for (int i = 0; i < tokensVector->total; i++) {
     struct Token* token = (struct Token*)tokensVector->items[i];
     switch (token->type) {
       case Arg: {
-        command->args = realloc(command->args, command->numArgs + 1);
-        command->args[command->numArgs] = token->value;
-        command->numArgs += 1;
+        // command->args = realloc(command->args, command->numArgs + 1);
+        // command->args[command->numArgs] = token->value;
+        // command->numArgs += 1;
+        vector_add(command->args, token->value);
         break;
       }
       case Async: {
@@ -36,7 +39,8 @@ struct Command* parse(vector* tokensVector) {
 
       case Command: {
         command->file = token->value;
-        command->args[0] = token->value;
+        // command->args[0] = token->value;
+        vector_add(command->args, token->value);
         break;
       }
       case Input: {

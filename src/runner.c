@@ -1,5 +1,7 @@
 #include "runner.h"
 
+#include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,48 +9,80 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "async.h"
 #include "parser.h"
+#include "shell.h"
+#include "signals.h"
 
-int runInput(const char* input) {
+void runInput(const char* input) {
   vector tokenVector;
   vector_init(&tokenVector, sizeof(struct Token));
   tokenize(&tokenVector, input);
 
   struct Command* command = parse(&tokenVector);
-  if (command == NULL) return 0;
+  if (command == NULL) {
+    seaShellGlobal.status = 1;
+    return;
+  }
 
-  char* commandFile = findFile(command->file);
+  char* commandFile = command->file;
+  if (runBuiltInCommand(command)) return;
 
-  FILE* inputFile = stdin;
-  // FILE* inputFile = inputFile == NULL ? stdin : fopen(findFile(command->inputFile), "r");
-  if (inputFile == NULL) return 1;
+  // char* commandFile = findFile(command->file);
 
-  FILE* outputFile = stdout;
-  // FILE* outputFile = outputFile == NULL ? stdout : fopen(findFile(command->outputFile), "w");
-  if (outputFile == NULL) return 1;
+  // FILE* inputFile = stdin;
+  FILE* inputFile = command->inputFile == NULL ? command->async ? fopen("/dev/null", "r") : stdin : fopen(command->inputFile, "r");
+  if (inputFile == NULL) {
+    printf("Error: Could not open file %s\n", command->inputFile);
+    seaShellGlobal.status = 1;
+    return;
+  };
+
+  // FILE* outputFile = stdout;
+  FILE* outputFile = command->outputFile == NULL ? command->async ? fopen("/dev/null", "r") : stdout : fopen(command->outputFile, "w");
+  if (outputFile == NULL) {
+    printf("Error: Could not open file %s\n", command->outputFile);
+    seaShellGlobal.status = 1;
+    return;
+  };
 
   // printf("\n\rStartking Fork\n");
 
   int pid = fork();
   if (pid == 0) {
-    // printf("\n\r I am Child \n");
-    // child process
-    // dup2(STDIN_FILENO, fileno(inputFile));
-    // dup2(STDOUT_FILENO, fileno(outputFile));
     dup2(fileno(inputFile), STDIN_FILENO);
     dup2(fileno(outputFile), STDOUT_FILENO);
-    // printf("\n\r Running\n");
-    execvp(commandFile, command->args);
+
+    // The other handlers get cleared when running execvp.
+    // Sig Ignore is kept though, so I can igore it while running.
+    handleSignal(SIGTSTP, SIG_IGN);
+    execvp(commandFile, command->args->items);
+    // Exec errored
+    int execError = errno;
+    switch (errno) {
+      case EACCES:
+        printf("Error: Permission denied\n");
+        break;
+      case ENOENT:
+        printf("Error: Command not found\n");
+        break;
+      default:
+        printf("Error: %s\n", strerror(execError));
+    }
     exit(1);
-    return 1;
+    seaShellGlobal.status = 1;
+    return;
   }
 
   // parent process
-  if (command->async != 0) return 0;
-  // printf("\n\r Not async\n");
+  if (command->async != 0) {
+    printf("%i\n", pid);
+    registerAsync(pid);
+    seaShellGlobal.status = 0;  // TODO: Might change
+    return;
+  }
 
-  int status;
-  waitpid(pid, &status, 0);
+  waitpid(pid, &seaShellGlobal.status, 0);
 
   // printf("\n\rError: %i\n\n\n", status);
   // Print contents of output file
@@ -60,31 +94,23 @@ int runInput(const char* input) {
   //   putchar(c);
   // }
   // printf("\n\rError: %i\n\n\n", status);
-
-  return status;
 }
 
-// Returns a fully resovled path
-char* findFile(char* filename) {
-  return filename;
-  // // secure_getenv
-  // char* path = getenv("PATH");
-  // char* pathCopy = malloc(strlen(path) + 1);
-  // strcpy(pathCopy, path);
-
-  // char* token = strtok(pathCopy, ":");
-  // while (token != NULL) {
-  //   char* fullPath = malloc(strlen(token) + strlen(filename) + 2);
-  //   strcpy(fullPath, token);
-  //   strcat(fullPath, "/");
-  //   strcat(fullPath, filename);
-
-  //   if (access(fullPath, F_OK) != -1) {
-  //     return fullPath;
-  //   }
-
-  //   token = strtok(NULL, ":");
-  // }
-
-  // return NULL;
+int runBuiltInCommand(struct Command* command) {
+  if (strcmp(command->file, "exit") == 0) {
+    exit(0);
+  } else if (strcmp(command->file, "status") == 0) {
+    printf("%i\n", seaShellGlobal.status);
+  } else if (strcmp(command->file, "cd") == 0) {
+    if (command->args->items[1] == NULL) {
+      chdir(getenv("HOME"));
+    } else {
+      chdir(command->args->items[1]);
+    }
+  } else if (strcmp(command->file, "jobs") == 0) {
+    printAsync();
+  } else {
+    return 0;
+  }
+  return 1;
 }
