@@ -30,6 +30,7 @@ void vector_set(vector *, int, void *);
 void *vector_get(vector *, int);
 void vector_delete(vector *, int);
 void vector_free(vector *);
+// I made this one though
 int vector_reduce(vector *, int, int (*)(void *));
 
 #endif

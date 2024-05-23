@@ -105,16 +105,16 @@ void tokenize(vector* tokenVector, const char* input) {
       struct Token* newToken = malloc(sizeof(struct Token));
       newToken->value = malloc(len + 1);
 
-      if (token[0] == '$') {
-        // Check for variable expansion
-        char* variable = expandVariable(token + 1);
-        if (variable == NULL)
-          strcpy(newToken->value, " ");
-        else
-          strcpy(newToken->value, variable);
-      } else {
-        strcpy(newToken->value, token);
-      }
+      // if (token[0] == '$') {
+      //   // Check for variable expansion
+      //   char* variable = expandVariable(token + 1);
+      //   if (variable == NULL)
+      //     strcpy(newToken->value, " ");
+      //   else
+      //     strcpy(newToken->value, variable);
+      // } else {
+      strcpy(newToken->value, token);
+      // }
 
       vector_add(tokenVector, newToken);
 
@@ -150,6 +150,34 @@ void tokenize(vector* tokenVector, const char* input) {
     newToken->type = Error;
 
     vector_add(tokenVector, newToken);
+  }
+
+  // Print all tokens (DEBUG)
+  // printf("\n\r");
+  // for (size_t i = 0; i < tokenVector->total; i++) {
+  //   struct Token* token = (struct Token*)tokenVector->items[i];
+  //   printf("%s: %s\n\r", tokenTypeText(token->type), token->value);
+  // }
+  // printf("\n\n");
+
+  // Lastly do variable expansion
+  char* pidToken = expandVariable("$");
+  size_t pidTokenLength = strlen(pidToken);
+  for (size_t i = 0; i < tokenVector->total; i++) {
+    struct Token* token = (struct Token*)tokenVector->items[i];
+    // Replace all instaces of $$ with the pid
+    char* i = strstr(token->value, "$$");  // char* to the first instance of $$ in the token
+    while (i != NULL) {
+      char* newString = malloc(strlen(token->value) - 2 + pidTokenLength + 1);  // new string the size of the old string - 2 ($$) + the pid + null terminator
+      strcpy(newString, token->value);                                          // Copy the whole old string to the new string
+      strcpy(newString + (i - token->value), pidToken);                         // overwrite the $$ with the pid
+      strcpy(newString + (i - token->value) + strlen(pidToken), i + 2);         // Copy the rest of the string after the $$ to the new string
+
+      free(token->value);
+      token->value = newString;
+
+      i = strstr(token->value, "$$");
+    }
   }
 }
 

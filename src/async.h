@@ -5,5 +5,6 @@ void registerAsync(int pid);
 void waitForAsync();
 void freeAsync();
 void printAsync();
+void checkAsync();
 
 #endif

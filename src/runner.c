@@ -55,7 +55,8 @@ void runInput(const char* input) {
 
     // The other handlers get cleared when running execvp.
     // Sig Ignore is kept though, so I can igore it while running.
-    handleSignal(SIGTSTP, SIG_IGN);
+    handleSignal(SIGTSTP, handle_SIGTSTP);
+    // handleSignal(SIGTSTP, SIG_IGN);
     execvp(commandFile, command->args->items);
     // Exec errored
     int execError = errno;
@@ -69,20 +70,21 @@ void runInput(const char* input) {
       default:
         printf("Error: %s\n", strerror(execError));
     }
-    exit(1);
     seaShellGlobal.status = 1;
+    exit(1);
     return;
   }
 
   // parent process
-  if (command->async != 0) {
-    printf("%i\n", pid);
+  if (command->async != 0 && seaShellGlobal.allowAsync) {  // Async
     registerAsync(pid);
-    seaShellGlobal.status = 0;  // TODO: Might change
+    // seaShellGlobal.status = 0;  // TODO: Might change
     return;
   }
 
-  waitpid(pid, &seaShellGlobal.status, 0);
+  int exitStatus;
+  waitpid(pid, &exitStatus, 0);
+  seaShellGlobal.status = WEXITSTATUS(exitStatus);
 
   // printf("\n\rError: %i\n\n\n", status);
   // Print contents of output file

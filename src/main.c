@@ -1,14 +1,16 @@
 //
-#include <ctype.h>  // { iscntrl }
+#include <ctype.h>
 #include <limits.h>
 #include <pwd.h>
-#include <stdio.h>   // { printf, scanf, read, STDIN_FILENO, open_memstream }
-#include <stdlib.h>  // { exit }
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <termios.h>  // { struct termios, tcgetattr, tcsetattr, TCSAFLUSH, ECHO, ICANON, ISIG }
-#include <unistd.h>   // { STDIN_FILENO }
+#include <termios.h>
+#include <unistd.h>
 
+#include "async.h"
 #include "runner.h"
 #include "shell.h"
 #include "signals.h"
@@ -29,20 +31,9 @@ void myDestructor(void) __attribute__((destructor));
 struct termios termios_orig;
 struct termios termios_mode;
 
-struct SeaShellGlobalData seaShellGlobal = {0};
-
 void myConstructor(void) {
-  seaShellGlobal.status = 0;
-  seaShellGlobal.cwdPath = malloc(PATH_MAX);
-  getcwd(seaShellGlobal.cwdPath, PATH_MAX);
-  seaShellGlobal.cwd = malloc(NAME_MAX);
-  strcpy(seaShellGlobal.cwd, seaShellGlobal.cwdPath + strlen(seaShellGlobal.cwdPath) - strlen(strrchr(seaShellGlobal.cwdPath, '/')) + 1);
-
-  uid_t uid = geteuid();
-  struct passwd *userData = uid == -1 ? NULL : getpwuid(uid);
-  if (!userData) puts("nope");
-
-  seaShellGlobal.username = userData->pw_name;
+  // Setup shell variables
+  initializeSeaShellGlobal();
 
   // Terminal raw mode
   tcgetattr(STDIN_FILENO, &termios_mode);
@@ -74,14 +65,6 @@ void myConstructor(void) {
 
   // Enables all mouse events to be written.
   // puts("\e[?1003h");
-
-  // Signals
-
-  // Both of these signal handlers get cleared when running exec, so I add an ignore handler before execvp.
-  // Setup a ^C signal handler for when the child is running, becuase I disable signal overrides
-  handleSignal(SIGINT, handle_SIGINT);
-  // Also setup a signal for ^Z so that I can handle that while the program is running.
-  handleSignal(SIGTSTP, handle_SIGTSTP);
 }
 
 void myDestructor(void) {
@@ -101,6 +84,14 @@ void myDestructor(void) {
 }
 
 int main(int argc, char *argv[]) {
+  // Signals
+
+  // Both of these signal handlers get cleared when running exec, so I add an ignore handler before execvp.
+  // Setup a ^C signal handler for when the child is running, becuase I disable signal overrides
+  handleSignal(SIGINT, handle_SIGINT);
+  // Also setup a signal for ^Z so that I can handle that while the program is running.
+  handleSignal(SIGTSTP, handle_SIGTSTP);
+
   printf("Hello, World!\n");
 
   // Load SeaShell history
@@ -117,7 +108,6 @@ int main(int argc, char *argv[]) {
   // Get user name
   // char username[10];
 
-  int inputStartColumn = strlen(seaShellGlobal.username) + 5;
   // printf("Hello %s", username);
 
   // Get and save the text
@@ -128,7 +118,6 @@ int main(int argc, char *argv[]) {
   char *bp;
   size_t size;
   FILE *stream;
-  int tick = 0;
 
   stream = open_memstream(&bp, &size);
   // fprintf(stream, "hello");
@@ -138,16 +127,20 @@ int main(int argc, char *argv[]) {
   // fclose(stream);
   // printf("buf = `%s', size = %zu\n", bp, size);
 
-  int ansiColors[16] = {30, 31, 32, 33, 34, 35, 36, 37, 90, 91, 92, 93, 94, 95, 96, 97};
-  char tickCircle[6][4] = {"⠁", "⠂", "⠄", "⠠", "⠐", "⠈"};
+  // int ansiColors[16] = {30, 31, 32, 33, 34, 35, 36, 37, 90, 91, 92, 93, 94, 95, 96, 97};
 
   // fprintf(stream, "./hello world");
 
   int keepGoing = true;
   while (keepGoing) {
-    tick = (tick + 1) % 6;
+    seaShellGlobal.tick = (seaShellGlobal.tick + 1) % 6;
     char c = '\0';
     read(STDIN_FILENO, &c, 1);
+
+    /// ASYNC CHECK
+    if (seaShellGlobal.tick == 0) checkAsync();
+
+    /// CHARACTER INPUT & DISPLAY
 
     if (iscntrl(c)) {
       // printf("%d\r", c);
@@ -164,7 +157,9 @@ int main(int argc, char *argv[]) {
           // \e[2K - Clear the line
           // \n - New line
           // \n - New line
-          printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\n", seaShellGlobal.username, bp, size + inputStartColumn + 1);
+          // printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\n", seaShellGlobal.username, bp);
+          printCommandToHistory(bp);
+          // printf("\n");
           // Enter key pressed
           fclose(stream);
           stream = open_memstream(&bp, &size);
@@ -173,6 +168,10 @@ int main(int argc, char *argv[]) {
         case 4:
           // Cntr + D
           keepGoing = false;
+          break;
+        case 26:
+          // Cntr + Z
+          toggleAllowAsync();
           break;
         case 127:
           // Backspace
@@ -192,12 +191,15 @@ int main(int argc, char *argv[]) {
           // \n - New line
           // \e[2K - Clear the line
           // \r - Move cursor to the beginning of the line
-          printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\e[2K\r", seaShellGlobal.username, bp, size + inputStartColumn + 1);
+          // printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\e[2K\r", seaShellGlobal.username, bp);
+          printCommandToHistory(bp);
+          printf("\e[F\e[2K");
           fflush(stdout);
           tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_orig);
           runInput(bp);
           tcsetattr(STDIN_FILENO, TCSAFLUSH, &termios_mode);
           printf("\n");
+          // printf("\n");
           // if (status != 0) {
           // }
           // Clear the buffer
@@ -207,16 +209,15 @@ int main(int argc, char *argv[]) {
           break;
         }
         case '\t':
-          fprintf(stream, "\\t");
-          break;
-        case '\v':
-          fprintf(stream, "\\v");
+          // Tab key pressed
+          // fprintf(stream, "\\t");
           break;
         case '\f':
-          fprintf(stream, "\\f");
+          // Form feed (Cntr + L)
+          // fprintf(stream, "\\f");
           break;
         default:
-          fprintf(stream, "%d", c);
+          // fprintf(stream, "%d", c);
           break;
       }
     } else {
@@ -237,32 +238,37 @@ int main(int argc, char *argv[]) {
     // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], seaShellGlobal.username);
 
     // if (size > 0) {
-    vector tokenVector;
-    vector_init(&tokenVector, sizeof(struct Token));
-    tokenize(&tokenVector, bp);
-    // printf("%i", tokenVector.total);
-    // for (size_t i = 0; i < tokenVector.total; i++) {
-    //   struct token *token = (struct token *)tokenVector.items[i];
-    //   printf("%s", token->value);
-    // }
-    char *printedText;
-    char *tooltip;
-    prettyPrintTokens(&tokenVector, bp, &printedText, &tooltip);
+    // vector tokenVector;
+    // vector_init(&tokenVector, sizeof(struct Token));
+    // tokenize(&tokenVector, bp);
+    // // printf("%i", tokenVector.total);
+    // // for (size_t i = 0; i < tokenVector.total; i++) {
+    // //   struct token *token = (struct token *)tokenVector.items[i];
+    // //   printf("%s", token->value);
+    // // }
+    // char *printedText;
+    // char *tooltip;
+    // prettyPrintTokens(&tokenVector, bp, &printedText, &tooltip);
 
-    // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], seaShellGlobal.username);
-    // \e[F     - Move cursor up one line
-    // \e[2K    - Clear the line
-    // \e[E     - Move cursor down one line
-    // \e[;%uH  - Move cursor to the column
-    printf("\e[F\e[2K%*.s%s\e[E\e[2K%s \e[95m%s \e[90m\e[0m %s\e[%uG", inputStartColumn, "", tooltip, tickCircle[tick], seaShellGlobal.username, printedText, size + inputStartColumn + 1);
-    // printf("%s", prettyPrintTokens(&tokenVector));
+    // // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], seaShellGlobal.username);
+    // // \e[F     - Move cursor up one line
+    // // \e[2K    - Clear the line
+    // // \e[E     - Move cursor down one line
+    // // \e[;%uH  - Move cursor to the column
+    // printf("\e[F\e[2K%*.s%s\e[E\e[2K%s \e[95m%s \e[90m\e[0m %s\e[%uG", inputStartColumn, "", tooltip, tickCircle[tick], seaShellGlobal.username, printedText, size + inputStartColumn + 1);
+    // // printf("%s", prettyPrintTokens(&tokenVector));
 
-    free(printedText);
-    free(tooltip);
+    // free(printedText);
+    // free(tooltip);
+
+    printInputBuffer(bp, size);
     // }
 
     fflush(stdout);
   }
+
+  printf("Awaiting any async processes\n");
+  waitForAsync();
 
   fclose(stream);
   free(bp);
