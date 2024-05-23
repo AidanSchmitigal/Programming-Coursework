@@ -267,11 +267,10 @@ int main(int argc, char *argv[]) {
     fflush(stdout);
   }
 
-  printf("Awaiting any async processes\n");
-  waitForAsync();
-
   fclose(stream);
   free(bp);
+
+  waitForAsync();
 
   return 0;
 }

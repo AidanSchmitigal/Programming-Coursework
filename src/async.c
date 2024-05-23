@@ -27,8 +27,10 @@ void waitForAsync() {
     return;
   }
 
-  for (int i = 0; i < vector_total(asyncPIDs); i++) {
-    int pid = *(int*)vector_get(asyncPIDs, i);
+  if (asyncPIDs->total > 0) printf("\n\nAwaiting any async processes\n\n");
+
+  for (int i = 0; i < asyncPIDs->total; i++) {
+    int pid = asyncPIDs->items[i];
     waitpid(pid, NULL, 0);
   }
 
@@ -69,11 +71,12 @@ void checkAsync() {
 
   for (int i = 0; i < asyncPIDs->total; i++) {
     int pid = (int*)vector_get(asyncPIDs, i);
-    pid_t return_pid = waitpid(pid, NULL, WNOHANG);
+    int exitStatus;
+    pid_t return_pid = waitpid(pid, &exitStatus, WNOHANG);
     if (return_pid != 0) {
       // Job has finished
-      char result[40];
-      sprintf(result, "Background job finished [%d] %d", i + 1, pid);
+      char result[65];
+      sprintf(result, "Background job %d finished with status %i", pid, WEXITSTATUS(exitStatus));
       printOutputToHistory(result);
 
       vector_delete(asyncPIDs, i);

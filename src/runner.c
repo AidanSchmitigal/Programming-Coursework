@@ -100,6 +100,7 @@ void runInput(const char* input) {
 
 int runBuiltInCommand(struct Command* command) {
   if (strcmp(command->file, "exit") == 0) {
+    waitForAsync();
     exit(0);
   } else if (strcmp(command->file, "status") == 0) {
     printf("%i\n", seaShellGlobal.status);
