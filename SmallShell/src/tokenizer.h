@@ -1,0 +1,30 @@
+#ifndef TOKENIZER
+#define TOKENIZER
+
+#include "utils/vector.h"
+
+// token type
+enum TokenType {
+  Command = 1,
+  Arg,
+  Input,
+  Output,
+  Async,
+  Error,
+  Comment
+};
+
+struct Token {
+  enum TokenType type;
+  char* value;
+  int inputStart;
+  int inputEnd;
+};
+
+// tokenize input
+void tokenize(vector* tokenVector, const char* input);
+void prettyPrintTokens(vector* tokenVector, const char* input, char** printedText, char** tooltip);
+char* tokenTypeText(enum TokenType);
+char* expandVariable(char*);
+
+#endif
