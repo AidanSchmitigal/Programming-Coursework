@@ -14,7 +14,7 @@ void registerAsync(int pid) {
     asyncPIDs = malloc(sizeof(vector));
     vector_init(asyncPIDs, sizeof(int));
   }
-  vector_add(asyncPIDs, pid);
+  vector_add(asyncPIDs, (void*)pid);
 
   printf("Started new background job [%u] %d\n", asyncPIDs->total, pid);
   // char result[40];
@@ -30,7 +30,7 @@ void waitForAsync() {
   if (asyncPIDs->total > 0) printf("\n\nAwaiting any async processes\n\n");
 
   for (int i = 0; i < asyncPIDs->total; i++) {
-    int pid = asyncPIDs->items[i];
+    int pid = (int)asyncPIDs->items[i];
     waitpid(pid, NULL, 0);
   }
 
@@ -53,7 +53,7 @@ void printAsync() {
   }
 
   for (int i = 0; i < asyncPIDs->total; i++) {
-    int pid = (int*)vector_get(asyncPIDs, i);
+    int pid = (int)asyncPIDs->items[i];
     pid_t return_pid = waitpid(pid, NULL, WNOHANG);
     if (return_pid != 0) {
       vector_delete(asyncPIDs, i);
@@ -70,7 +70,7 @@ void checkAsync() {
   }
 
   for (int i = 0; i < asyncPIDs->total; i++) {
-    int pid = (int*)vector_get(asyncPIDs, i);
+    int pid = (int)asyncPIDs->items[i];
     int exitStatus;
     pid_t return_pid = waitpid(pid, &exitStatus, WNOHANG);
     if (return_pid != 0) {

@@ -123,13 +123,13 @@ void tokenize(vector* tokenVector, const char* input) {
 
       tokenStart += len + 1;
 
-      if (nextToken != NULL) {
+      if (nextToken != 0) {
         newToken->type = nextToken;
         if (nextToken == Input || nextToken == Output) {
           newToken->inputEnd += 2;
           tokenStart += 2;
         }
-        nextToken = NULL;
+        nextToken = 0;
       } else if (strcmp(token, "&") == 0) {
         newToken->type = Async;
       } else {
@@ -139,11 +139,11 @@ void tokenize(vector* tokenVector, const char* input) {
     token = strtok(NULL, " ");
   }
 
-  if (nextToken != NULL) {
+  if (nextToken != 0) {
     struct Token* newToken = malloc(sizeof(struct Token));
     //                "<- Syntax Error: Was expecting <Some value>";
     newToken->value = malloc(42);
-    strcat(newToken->value, "   <- Syntax Error: Was expecting ");
+    strcat(newToken->value, " <- Syntax Error: Was expecting ");
     strcat(newToken->value, tokenTypeText(nextToken));
     newToken->inputStart = tokenStart;
     newToken->inputEnd = inputLen;
@@ -195,7 +195,7 @@ void prettyPrintTokens(vector* tokenVector, const char* input, char** printedTex
   int ansiColors[8] = {0, /* Command */ 34, /* Arg */ 32, /* Input */ 33, /* Output */ 93, /* Async */ 95, /* Error */ 91, /* Comment */ 90};
 
   int inputLength = strlen(input);
-  int totalLength = vector_reduce(tokenVector, 0, tokenLength);
+  // int totalLength = vector_reduce(tokenVector, 0, (int (*)(void*))tokenLength);
 
   // ANSI Codes: \e[<color>m, 5 chars                               check if last is error
   *printedText = malloc(inputLength + (tokenVector->total * 5) + 1 + (((struct Token*)tokenVector->items[tokenVector->total - 1])->type == Error ? 42 : 0));  // +1 for the null terminator
@@ -215,8 +215,8 @@ void prettyPrintTokens(vector* tokenVector, const char* input, char** printedTex
     }
     if (token != NULL) {
       char colorCode[6];
-      sprintf(&colorCode, "\e[%im", ansiColors[token->type % 16]);
-      strcat(*printedText, &colorCode);
+      sprintf(colorCode, "\e[%im", ansiColors[token->type % 16]);
+      strcat(*printedText, colorCode);
 
       if (token->type == Error) {
         int stringLength = strlen(*printedText);

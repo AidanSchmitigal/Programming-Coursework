@@ -49,7 +49,7 @@ void toggleAllowAsync() {
   // snprintf(message, 80, "\e[F\e[2K\r\e[95m%s \e[90m\e[0m %s\n\n", seaShellGlobal.username, seaShellGlobal.allowAsync ? "Async enabled" : "Async disabled");
   // write(STDOUT_FILENO, message, strlen(message));
 
-  write(STDOUT_FILENO, seaShellGlobal.allowAsync ? "Async enabled\n\n" : "Async disabled\n\n", 18);
+  write(STDOUT_FILENO, seaShellGlobal.allowAsync ? "Async enabled \n\n" : "Async disabled\n\n", 17);
 }
 
 void printInputBuffer(char *line, size_t size) {

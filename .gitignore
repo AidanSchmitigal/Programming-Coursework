@@ -1,5 +1,13 @@
-obj/*
-.vscode/*
+obj/
+.vscode/
 *.runme
 Makefile
-lexical_parser/*
+lexical_parser/
+.DS_Store
+*_test_2
+junk
+junk2
+anotherfile
+_Makefile
+smallsh
+*.zip

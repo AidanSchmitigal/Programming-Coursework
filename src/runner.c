@@ -48,6 +48,14 @@ void runInput(const char* input) {
 
   // printf("\n\rStartking Fork\n");
 
+  // Printf all the args
+  // printf("\n\rStartking Fork\n");
+  vector_add(command->args, NULL);
+
+  // for (int i = 0; i < command->args->total; i++) {
+  //   printf("Arg %i: %s\n", i, (char*)command->args->items[i]);
+  // }
+
   int pid = fork();
   if (pid == 0) {
     dup2(fileno(inputFile), STDIN_FILENO);
@@ -57,7 +65,7 @@ void runInput(const char* input) {
     // Sig Ignore is kept though, so I can igore it while running.
     handleSignal(SIGTSTP, handle_SIGTSTP);
     // handleSignal(SIGTSTP, SIG_IGN);
-    execvp(commandFile, command->args->items);
+    execvp(commandFile, (char* const*)command->args->items);
     // Exec errored
     int execError = errno;
     switch (errno) {

@@ -10,10 +10,6 @@ void vector_init(vector *v, int size) {
   v->items = malloc(size * v->capacity);
 }
 
-int vector_total(vector *v) {
-  return v->total;
-}
-
 static void vector_resize(vector *v, int capacity) {
   void **items = realloc(v->items, v->size * capacity);
   if (items) {
@@ -31,12 +27,6 @@ void vector_add(vector *v, void *item) {
 void vector_set(vector *v, int index, void *item) {
   if (index >= 0 && index < v->total)
     v->items[index] = item;
-}
-
-void *vector_get(vector *v, int index) {
-  if (index >= 0 && index < v->total)
-    return v->items[index];
-  return NULL;
 }
 
 void vector_delete(vector *v, int index) {

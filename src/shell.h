@@ -2,6 +2,7 @@
 #define SHELL_H
 
 #include <ctype.h>
+#include <stddef.h>
 
 struct DataSeaShellGlobal {
   int tick;
@@ -19,7 +20,7 @@ struct DataSeaShellGlobal {
   // vector * /* char* */ commandFiles;  // NULLable
 };
 
-struct DataSeaShellGlobal seaShellGlobal;
+extern struct DataSeaShellGlobal seaShellGlobal;
 
 void initializeSeaShellGlobal();
 void toggleAllowAsync();
