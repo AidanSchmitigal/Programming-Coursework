@@ -3,7 +3,7 @@
 
 #include <ctype.h>
 
-struct SeaShellGlobalData {
+struct DataSeaShellGlobal {
   int tick;
   int status;
 
@@ -15,9 +15,11 @@ struct SeaShellGlobalData {
   size_t usernameLength;
 
   int allowAsync;
+
+  // vector * /* char* */ commandFiles;  // NULLable
 };
 
-struct SeaShellGlobalData seaShellGlobal;
+struct DataSeaShellGlobal seaShellGlobal;
 
 void initializeSeaShellGlobal();
 void toggleAllowAsync();

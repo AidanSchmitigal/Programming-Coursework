@@ -3,6 +3,7 @@
 
 #include <limits.h>
 #include <pwd.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +14,7 @@
 #include "tokenizer.h"
 #include "utils/vector.h"
 
-struct SeaShellGlobalData seaShellGlobal = {0};
+struct DataSeaShellGlobal seaShellGlobal = {0};
 
 void initializeSeaShellGlobal() {
   seaShellGlobal.status = 0;
@@ -29,7 +30,7 @@ void initializeSeaShellGlobal() {
   seaShellGlobal.cwdLength = strlen(seaShellGlobal.cwdPath);
 
   uid_t uid = geteuid();
-  struct passwd* userData = uid == -1 ? NULL : getpwuid(uid);
+  struct passwd *userData = uid == -1 ? NULL : getpwuid(uid);
   // if (!userData) puts("nope");
 
   if (!userData) {
@@ -51,7 +52,7 @@ void toggleAllowAsync() {
   write(STDOUT_FILENO, seaShellGlobal.allowAsync ? "Async enabled\n\n" : "Async disabled\n\n", 18);
 }
 
-void printInputBuffer(char* line, size_t size) {
+void printInputBuffer(char *line, size_t size) {
   static char tickCircle[6][4] = {"⠁", "⠂", "⠄", "⠠", "⠐", "⠈"};
   int inputStartColumn = seaShellGlobal.usernameLength + 5;
 
@@ -63,8 +64,8 @@ void printInputBuffer(char* line, size_t size) {
   //   struct token *token = (struct token *)tokenVector.items[i];
   //   printf("%s", token->value);
   // }
-  char* printedText;
-  char* tooltip;
+  char *printedText;
+  char *tooltip;
   prettyPrintTokens(&tokenVector, line, &printedText, &tooltip);
 
   // printf("\r%s \e[95m%s \e[90m\e[0m", tickCircle[tick], seaShellGlobal.username);
@@ -79,11 +80,11 @@ void printInputBuffer(char* line, size_t size) {
   free(tooltip);
 }
 
-void printCommandToHistory(char* line) {
+void printCommandToHistory(char *line) {
   printf("\e[F\e[2K\r\e[95m%s \e[90m\e[0m %s\n\n\r", seaShellGlobal.username, line);
   // printf("\e[F\r\e[95m%s \e[90m\e[0m %s    \n\e[2K\r", seaShellGlobal.username, line);
 }
 
-void printOutputToHistory(char* line) {
+void printOutputToHistory(char *line) {
   printf("\e[F\e[2K\r\e[0m%s\n\n\r", line);
 }

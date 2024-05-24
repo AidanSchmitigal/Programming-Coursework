@@ -65,6 +65,7 @@ void myConstructor(void) {
 
   // Enables all mouse events to be written.
   // puts("\e[?1003h");
+  puts("\e[5m");
 }
 
 void myDestructor(void) {
